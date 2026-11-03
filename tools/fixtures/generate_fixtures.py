@@ -9,6 +9,7 @@ Setup and usage (from the repository root):
 Output is deterministic (fixed seed, no timestamps), so re-running it must not change any file.
 """
 
+import itertools
 import json
 import math
 import random
@@ -20,12 +21,20 @@ from fsrs import Card, Rating, Scheduler
 from fsrs.scheduler import (
     DEFAULT_PARAMETERS,
     LOWER_BOUNDS_PARAMETERS,
+    STABILITY_MIN,
     UPPER_BOUNDS_PARAMETERS,
 )
 
 PY_FSRS_VERSION = "6.3.2"
 SEED = 20261029
 RANDOM_PARAMETER_SET_COUNT = 10
+RANDOM_SAMPLES_PER_PARAMETER_SET = 30
+
+# Fixed input grid used with the default parameters, including the edge values.
+GRID_STABILITIES = (STABILITY_MIN, 0.01, 0.1, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0, 36500.0)
+GRID_ELAPSED_DAYS = (0, 1, 2, 7, 30, 365, 3650)
+
+REFERENCE_DATETIME = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = REPO_ROOT / "library/src/jvmTest/resources" / f"py-fsrs-{PY_FSRS_VERSION}"
@@ -94,6 +103,19 @@ def rating_name(rating: Rating) -> str:
     return rating.name.upper()
 
 
+def sample_log_uniform(rng: random.Random, lower: float, upper: float) -> float:
+    # Small and large values are equally likely, unlike with a uniform distribution.
+    return math.exp(rng.uniform(math.log(lower), math.log(upper)))
+
+
+def sample_stability(rng: random.Random) -> float:
+    return sample_log_uniform(rng, GRID_STABILITIES[0], GRID_STABILITIES[-1])
+
+
+def sample_elapsed_days(rng: random.Random) -> int:
+    return round(sample_log_uniform(rng, 1, GRID_ELAPSED_DAYS[-1] + 1)) - 1
+
+
 def initial_stability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
     return [
         {
@@ -116,6 +138,35 @@ def initial_difficulty_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
         for name, scheduler in schedulers.items()
         for rating in Rating
     ]
+
+
+def retrievability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    # Own generator per formula, so that adding a formula does not change the existing fixtures.
+    rng = random.Random(f"{SEED}-retrievability")
+    cases = []
+    for name, scheduler in schedulers.items():
+        if name == "default":
+            inputs = list(itertools.product(GRID_ELAPSED_DAYS, GRID_STABILITIES))
+        else:
+            inputs = [
+                (sample_elapsed_days(rng), sample_stability(rng))
+                for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
+            ]
+
+        for elapsed_days, stability in inputs:
+            # py-fsrs only computes retrievability from a card and a date, in whole days.
+            card = Card(card_id=1, stability=stability, last_review=REFERENCE_DATETIME)
+            cases.append(
+                {
+                    "params": name,
+                    "input": {"elapsedDays": elapsed_days, "stability": stability},
+                    "expected": scheduler.get_card_retrievability(
+                        card,
+                        current_datetime=REFERENCE_DATETIME + timedelta(days=elapsed_days),
+                    ),
+                }
+            )
+    return cases
 
 
 def write_json(path: Path, header: dict, list_key: str, items: list[dict]) -> None:
@@ -169,6 +220,18 @@ def main() -> None:
         },
         list_key="cases",
         items=initial_difficulty_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/retrievability.json",
+        header={
+            "function": "retrievability",
+            "description": "Probability of recalling a card after the given whole days have elapsed, depending on its stability.",
+            "pyFsrs": "Scheduler.get_card_retrievability",
+            "kotlin": "Fsrs.retrievability",
+        },
+        list_key="cases",
+        items=retrievability_cases(schedulers),
     )
 
 

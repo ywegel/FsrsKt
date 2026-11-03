@@ -35,4 +35,18 @@ class FormulaReferenceTest {
             }
         }
     }
+
+    @TestFactory
+    fun retrievability(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FormulaFile<RetrievabilityInput>>("formulas/retrievability.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, t=${case.input.elapsedDays}, S=${case.input.stability}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params)
+                    .retrievability(case.input.elapsedDays.toDouble(), case.input.stability)
+                assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
 }

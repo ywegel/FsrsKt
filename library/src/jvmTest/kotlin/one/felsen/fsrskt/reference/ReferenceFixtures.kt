@@ -51,6 +51,9 @@ data class FormulaCase<I>(val params: String, val input: I, val expected: Double
 @Serializable
 data class RatingInput(val rating: FsrsRating)
 
+@Serializable
+data class RetrievabilityInput(val elapsedDays: Int, val stability: Double)
+
 /**
  * Asserts that [actual] matches the py-fsrs value [expected] up to a relative tolerance,
  * with an absolute floor so that values near zero are compared sensibly.
