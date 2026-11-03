@@ -54,6 +54,9 @@ data class RatingInput(val rating: FsrsRating)
 @Serializable
 data class RetrievabilityInput(val elapsedDays: Int, val stability: Double)
 
+@Serializable
+data class NextDifficultyInput(val difficulty: Double, val rating: FsrsRating)
+
 /**
  * Asserts that [actual] matches the py-fsrs value [expected] up to a relative tolerance,
  * with an absolute floor so that values near zero are compared sensibly.

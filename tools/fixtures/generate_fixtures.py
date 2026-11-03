@@ -21,6 +21,8 @@ from fsrs import Card, Rating, Scheduler
 from fsrs.scheduler import (
     DEFAULT_PARAMETERS,
     LOWER_BOUNDS_PARAMETERS,
+    MAX_DIFFICULTY,
+    MIN_DIFFICULTY,
     STABILITY_MIN,
     UPPER_BOUNDS_PARAMETERS,
 )
@@ -33,6 +35,7 @@ RANDOM_SAMPLES_PER_PARAMETER_SET = 30
 # Fixed input grid used with the default parameters, including the edge values.
 GRID_STABILITIES = (STABILITY_MIN, 0.01, 0.1, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0, 36500.0)
 GRID_ELAPSED_DAYS = (0, 1, 2, 7, 30, 365, 3650)
+GRID_DIFFICULTIES = (MIN_DIFFICULTY, 1.5, 5.0, 9.5, MAX_DIFFICULTY)
 
 REFERENCE_DATETIME = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
@@ -116,6 +119,10 @@ def sample_elapsed_days(rng: random.Random) -> int:
     return round(sample_log_uniform(rng, 1, GRID_ELAPSED_DAYS[-1] + 1)) - 1
 
 
+def sample_difficulty(rng: random.Random) -> float:
+    return rng.uniform(MIN_DIFFICULTY, MAX_DIFFICULTY)
+
+
 def initial_stability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
     return [
         {
@@ -164,6 +171,29 @@ def retrievability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
                         card,
                         current_datetime=REFERENCE_DATETIME + timedelta(days=elapsed_days),
                     ),
+                }
+            )
+    return cases
+
+
+def next_difficulty_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    rng = random.Random(f"{SEED}-next-difficulty")
+    cases = []
+    for name, scheduler in schedulers.items():
+        if name == "default":
+            inputs = list(itertools.product(GRID_DIFFICULTIES, Rating))
+        else:
+            inputs = [
+                (sample_difficulty(rng), rng.choice(list(Rating)))
+                for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
+            ]
+
+        for difficulty, rating in inputs:
+            cases.append(
+                {
+                    "params": name,
+                    "input": {"difficulty": difficulty, "rating": rating_name(rating)},
+                    "expected": scheduler._next_difficulty(difficulty=difficulty, rating=rating),
                 }
             )
     return cases
@@ -232,6 +262,18 @@ def main() -> None:
         },
         list_key="cases",
         items=retrievability_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/next-difficulty.json",
+        header={
+            "function": "nextDifficulty",
+            "description": "Difficulty of a card after a review, depending on its current difficulty and the rating, clamped to [1, 10].",
+            "pyFsrs": "Scheduler._next_difficulty",
+            "kotlin": "Fsrs.nextDifficulty",
+        },
+        list_key="cases",
+        items=next_difficulty_cases(schedulers),
     )
 
 

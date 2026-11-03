@@ -49,4 +49,18 @@ class FormulaReferenceTest {
             }
         }
     }
+
+    @TestFactory
+    fun nextDifficulty(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FormulaFile<NextDifficultyInput>>("formulas/next-difficulty.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, D=${case.input.difficulty}, ${case.input.rating}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params)
+                    .nextDifficulty(case.input.difficulty, case.input.rating)
+                assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
 }
