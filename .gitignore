@@ -13,3 +13,4 @@ xcuserdata
 *.gpg
 # Python venv for fixture generation
 tools/fixtures/.venv
+tools/fixtures/__pycache__

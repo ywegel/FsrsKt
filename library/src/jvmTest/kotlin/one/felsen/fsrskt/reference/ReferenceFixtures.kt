@@ -3,7 +3,6 @@ package one.felsen.fsrskt.reference
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import one.felsen.fsrskt.fsrs6.Fsrs
-import one.felsen.fsrskt.fsrs6.FsrsRating
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.test.fail
@@ -35,65 +34,6 @@ data class ParameterSetsFile(val pyFsrsVersion: String, val seed: Long, val para
 
 @Serializable
 data class ParameterSet(val name: String, val w: List<Double>)
-
-@Serializable
-data class FormulaFile<I>(
-    val function: String,
-    val description: String,
-    val pyFsrs: String,
-    val kotlin: String,
-    val cases: List<FormulaCase<I>>,
-)
-
-@Serializable
-data class FormulaCase<I>(val params: String, val input: I, val expected: Double)
-
-@Serializable
-data class RatingInput(val rating: FsrsRating)
-
-@Serializable
-data class RetrievabilityInput(val elapsedDays: Int, val stability: Double)
-
-@Serializable
-data class NextDifficultyInput(val difficulty: Double, val rating: FsrsRating)
-
-@Serializable
-data class NextStabilityShortTermInput(val stability: Double, val rating: FsrsRating)
-
-@Serializable
-data class StabilityOnRecallInput(
-    val difficulty: Double,
-    val stability: Double,
-    val retrievability: Double,
-    val rating: FsrsRating,
-)
-
-@Serializable
-data class StabilityOnLapseInput(val difficulty: Double, val stability: Double, val retrievability: Double)
-
-@Serializable
-data class ReviewSequenceFile(
-    val description: String,
-    val pyFsrs: String,
-    val kotlin: String,
-    val sequences: List<ReviewSequence>,
-)
-
-@Serializable
-data class ReviewSequence(val id: String, val params: String, val steps: List<ReviewStep>)
-
-@Serializable
-data class ReviewStep(
-    val reviewAt: String,
-    val rating: FsrsRating,
-    val elapsedDays: Int,
-    val sameDay: Boolean,
-    val before: MemoryState?,
-    val after: MemoryState,
-)
-
-@Serializable
-data class MemoryState(val difficulty: Double, val stability: Double)
 
 /**
  * Asserts that [actual] matches the py-fsrs value [expected] up to a relative tolerance,
