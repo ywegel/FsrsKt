@@ -1,0 +1,63 @@
+package one.felsen.fsrskt.reference
+
+import one.felsen.fsrskt.fsrs6.FsrsCalculator
+import one.felsen.fsrskt.fsrs6.FsrsState
+import org.junit.jupiter.api.DynamicTest
+import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.TestFactory
+
+/**
+ * Compares [FsrsCalculator.review] against review sequences computed by py-fsrs.
+ * Every review sequence becomes its own test in both factories.
+ */
+class ReviewSequenceReferenceTest {
+
+    private val file = ReferenceFixtures.load<ReviewSequenceFile>("review-sequences.json")
+
+    /**
+     * Starts every step from the py-fsrs state, so that a failure points to the step that causes a deviation.
+     */
+    @TestFactory
+    fun everyStepFromReferenceState(): List<DynamicTest> = file.sequences.map { sequence ->
+        dynamicTest("${sequence.id}, ${sequence.params}") {
+            val calculator = calculator(sequence)
+            sequence.steps.forEachIndexed { index, step ->
+                val actual = calculator.review(
+                    state = step.before?.let { FsrsState(it.difficulty, it.stability) },
+                    rating = step.rating,
+                    elapsedDays = step.elapsedDays.toDouble(),
+                    sameDay = step.sameDay,
+                )
+                assertMatchesReference(step.after, actual) { describe(sequence, index, step) }
+            }
+        }
+    }
+
+    /**
+     * Continues with the FsrsKt state after every step, so that deviations add up as they do in real use.
+     */
+    @TestFactory
+    fun wholeSequenceWithOwnState(): List<DynamicTest> = file.sequences.map { sequence ->
+        dynamicTest("${sequence.id}, ${sequence.params}") {
+            val calculator = calculator(sequence)
+            val actual = sequence.steps.fold(null as FsrsState?) { state, step ->
+                calculator.review(state, step.rating, step.elapsedDays.toDouble(), step.sameDay)
+            }
+            assertMatchesReference(sequence.steps.last().after, checkNotNull(actual)) {
+                "${file.kotlin}(${sequence.id}, ${sequence.params}, end of ${sequence.steps.size} steps)"
+            }
+        }
+    }
+
+    private fun calculator(sequence: ReviewSequence) = FsrsCalculator(ReferenceFixtures.fsrs(sequence.params))
+
+    private fun describe(sequence: ReviewSequence, index: Int, step: ReviewStep): String =
+        "${file.kotlin}(${sequence.id}, ${sequence.params}, step ${index + 1}/${sequence.steps.size}, " +
+            "reviewAt=${step.reviewAt}, before=${step.before}, ${step.rating}, " +
+            "elapsedDays=${step.elapsedDays}, sameDay=${step.sameDay})"
+
+    private fun assertMatchesReference(expected: MemoryState, actual: FsrsState, message: () -> String) {
+        assertMatchesReference(expected.difficulty, actual.difficulty, { "${message()}, difficulty" })
+        assertMatchesReference(expected.stability, actual.stability, { "${message()}, stability" })
+    }
+}

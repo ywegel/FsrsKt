@@ -71,6 +71,30 @@ data class StabilityOnRecallInput(
 @Serializable
 data class StabilityOnLapseInput(val difficulty: Double, val stability: Double, val retrievability: Double)
 
+@Serializable
+data class ReviewSequenceFile(
+    val description: String,
+    val pyFsrs: String,
+    val kotlin: String,
+    val sequences: List<ReviewSequence>,
+)
+
+@Serializable
+data class ReviewSequence(val id: String, val params: String, val steps: List<ReviewStep>)
+
+@Serializable
+data class ReviewStep(
+    val reviewAt: String,
+    val rating: FsrsRating,
+    val elapsedDays: Int,
+    val sameDay: Boolean,
+    val before: MemoryState?,
+    val after: MemoryState,
+)
+
+@Serializable
+data class MemoryState(val difficulty: Double, val stability: Double)
+
 /**
  * Asserts that [actual] matches the py-fsrs value [expected] up to a relative tolerance,
  * with an absolute floor so that values near zero are compared sensibly.
