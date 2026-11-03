@@ -36,6 +36,10 @@ RANDOM_SAMPLES_PER_PARAMETER_SET = 30
 GRID_STABILITIES = (STABILITY_MIN, 0.01, 0.1, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0, 36500.0)
 GRID_ELAPSED_DAYS = (0, 1, 2, 7, 30, 365, 3650)
 GRID_DIFFICULTIES = (MIN_DIFFICULTY, 1.5, 5.0, 9.5, MAX_DIFFICULTY)
+GRID_RETRIEVABILITIES = (0.0, 0.01, 0.3, 0.9, 0.99, 1.0)
+
+# AGAIN is a lapse, which py-fsrs and FsrsKt both handle with a separate formula.
+RECALL_RATINGS = (Rating.Hard, Rating.Good, Rating.Easy)
 
 REFERENCE_DATETIME = datetime(2024, 1, 1, tzinfo=timezone.utc)
 
@@ -123,6 +127,10 @@ def sample_difficulty(rng: random.Random) -> float:
     return rng.uniform(MIN_DIFFICULTY, MAX_DIFFICULTY)
 
 
+def sample_retrievability(rng: random.Random) -> float:
+    return rng.uniform(GRID_RETRIEVABILITIES[0], GRID_RETRIEVABILITIES[-1])
+
+
 def initial_stability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
     return [
         {
@@ -194,6 +202,104 @@ def next_difficulty_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
                     "params": name,
                     "input": {"difficulty": difficulty, "rating": rating_name(rating)},
                     "expected": scheduler._next_difficulty(difficulty=difficulty, rating=rating),
+                }
+            )
+    return cases
+
+
+def next_stability_short_term_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    rng = random.Random(f"{SEED}-next-stability-short-term")
+    cases = []
+    for name, scheduler in schedulers.items():
+        if name == "default":
+            inputs = list(itertools.product(GRID_STABILITIES, Rating))
+        else:
+            inputs = [
+                (sample_stability(rng), rng.choice(list(Rating)))
+                for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
+            ]
+
+        for stability, rating in inputs:
+            cases.append(
+                {
+                    "params": name,
+                    "input": {"stability": stability, "rating": rating_name(rating)},
+                    "expected": scheduler._short_term_stability(stability=stability, rating=rating),
+                }
+            )
+    return cases
+
+
+def stability_on_recall_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    rng = random.Random(f"{SEED}-stability-on-recall")
+    cases = []
+    for name, scheduler in schedulers.items():
+        if name == "default":
+            inputs = list(
+                itertools.product(
+                    GRID_DIFFICULTIES, GRID_STABILITIES, GRID_RETRIEVABILITIES, RECALL_RATINGS
+                )
+            )
+        else:
+            inputs = [
+                (
+                    sample_difficulty(rng),
+                    sample_stability(rng),
+                    sample_retrievability(rng),
+                    rng.choice(RECALL_RATINGS),
+                )
+                for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
+            ]
+
+        for difficulty, stability, retrievability, rating in inputs:
+            cases.append(
+                {
+                    "params": name,
+                    "input": {
+                        "difficulty": difficulty,
+                        "stability": stability,
+                        "retrievability": retrievability,
+                        "rating": rating_name(rating),
+                    },
+                    "expected": scheduler._next_recall_stability(
+                        difficulty=difficulty,
+                        stability=stability,
+                        retrievability=retrievability,
+                        rating=rating,
+                    ),
+                }
+            )
+    return cases
+
+
+def stability_on_lapse_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    rng = random.Random(f"{SEED}-stability-on-lapse")
+    cases = []
+    for name, scheduler in schedulers.items():
+        if name == "default":
+            inputs = list(
+                itertools.product(GRID_DIFFICULTIES, GRID_STABILITIES, GRID_RETRIEVABILITIES)
+            )
+        else:
+            inputs = [
+                (sample_difficulty(rng), sample_stability(rng), sample_retrievability(rng))
+                for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
+            ]
+
+        for difficulty, stability, retrievability in inputs:
+            cases.append(
+                {
+                    "params": name,
+                    "input": {
+                        "difficulty": difficulty,
+                        "stability": stability,
+                        "retrievability": retrievability,
+                    },
+                    "expected": scheduler._next_forget_stability(
+                        difficulty=difficulty,
+                        stability=stability,
+                        retrievability=retrievability,
+                    ),
                 }
             )
     return cases
@@ -274,6 +380,42 @@ def main() -> None:
         },
         list_key="cases",
         items=next_difficulty_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/next-stability-short-term.json",
+        header={
+            "function": "nextStabilityShortTerm",
+            "description": "Stability of a card after a review within less than a day, depending on its current stability and the rating.",
+            "pyFsrs": "Scheduler._short_term_stability",
+            "kotlin": "Fsrs.nextStabilityShortTerm",
+        },
+        list_key="cases",
+        items=next_stability_short_term_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/stability-on-recall.json",
+        header={
+            "function": "stabilityOnRecall",
+            "description": "Stability of a card after a successful long-term review (HARD, GOOD or EASY), depending on its difficulty, stability and retrievability.",
+            "pyFsrs": "Scheduler._next_recall_stability",
+            "kotlin": "Fsrs.stabilityOnRecall",
+        },
+        list_key="cases",
+        items=stability_on_recall_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/stability-on-lapse.json",
+        header={
+            "function": "stabilityOnLapse",
+            "description": "Stability of a card after a forgotten long-term review (AGAIN), depending on its difficulty, stability and retrievability.",
+            "pyFsrs": "Scheduler._next_forget_stability",
+            "kotlin": "Fsrs.stabilityOnLapse",
+        },
+        list_key="cases",
+        items=stability_on_lapse_cases(schedulers),
     )
 
 

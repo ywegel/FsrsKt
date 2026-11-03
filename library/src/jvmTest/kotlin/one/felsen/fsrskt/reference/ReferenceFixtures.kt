@@ -57,6 +57,20 @@ data class RetrievabilityInput(val elapsedDays: Int, val stability: Double)
 @Serializable
 data class NextDifficultyInput(val difficulty: Double, val rating: FsrsRating)
 
+@Serializable
+data class NextStabilityShortTermInput(val stability: Double, val rating: FsrsRating)
+
+@Serializable
+data class StabilityOnRecallInput(
+    val difficulty: Double,
+    val stability: Double,
+    val retrievability: Double,
+    val rating: FsrsRating,
+)
+
+@Serializable
+data class StabilityOnLapseInput(val difficulty: Double, val stability: Double, val retrievability: Double)
+
 /**
  * Asserts that [actual] matches the py-fsrs value [expected] up to a relative tolerance,
  * with an absolute floor so that values near zero are compared sensibly.

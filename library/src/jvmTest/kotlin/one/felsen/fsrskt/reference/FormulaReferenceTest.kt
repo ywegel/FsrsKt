@@ -63,4 +63,55 @@ class FormulaReferenceTest {
             }
         }
     }
+
+    @TestFactory
+    fun nextStabilityShortTerm(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FormulaFile<NextStabilityShortTermInput>>("formulas/next-stability-short-term.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, S=${case.input.stability}, ${case.input.rating}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params)
+                    .nextStabilityShortTerm(case.input.stability, case.input.rating)
+                assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
+
+    @TestFactory
+    fun stabilityOnRecall(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FormulaFile<StabilityOnRecallInput>>("formulas/stability-on-recall.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, D=${case.input.difficulty}, S=${case.input.stability}, " +
+                "R=${case.input.retrievability}, ${case.input.rating}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params).stabilityOnRecall(
+                    case.input.difficulty,
+                    case.input.stability,
+                    case.input.retrievability,
+                    case.input.rating,
+                )
+                assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
+
+    @TestFactory
+    fun stabilityOnLapse(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FormulaFile<StabilityOnLapseInput>>("formulas/stability-on-lapse.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, D=${case.input.difficulty}, S=${case.input.stability}, " +
+                "R=${case.input.retrievability}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params).stabilityOnLapse(
+                    case.input.difficulty,
+                    case.input.stability,
+                    case.input.retrievability,
+                )
+                assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
 }
