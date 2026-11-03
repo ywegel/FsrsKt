@@ -106,6 +106,18 @@ def initial_stability_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
     ]
 
 
+def initial_difficulty_cases(schedulers: dict[str, Scheduler]) -> list[dict]:
+    return [
+        {
+            "params": name,
+            "input": {"rating": rating_name(rating)},
+            "expected": scheduler._initial_difficulty(rating=rating, clamp=True),
+        }
+        for name, scheduler in schedulers.items()
+        for rating in Rating
+    ]
+
+
 def write_json(path: Path, header: dict, list_key: str, items: list[dict]) -> None:
     """Writes the header fields indented and each list item on its own line."""
     lines = ["{"]
@@ -145,6 +157,18 @@ def main() -> None:
         },
         list_key="cases",
         items=initial_stability_cases(schedulers),
+    )
+
+    write_json(
+        OUTPUT_DIR / "formulas/initial-difficulty.json",
+        header={
+            "function": "initialDifficulty",
+            "description": "Difficulty of a new card after its first review, depending on the rating, clamped to [1, 10].",
+            "pyFsrs": "Scheduler._initial_difficulty",
+            "kotlin": "Fsrs.initialDifficulty",
+        },
+        list_key="cases",
+        items=initial_difficulty_cases(schedulers),
     )
 
 
