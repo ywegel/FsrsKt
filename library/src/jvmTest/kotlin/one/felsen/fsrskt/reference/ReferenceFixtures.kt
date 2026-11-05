@@ -48,7 +48,7 @@ data class ParameterSet(val name: String, val w: List<Double>)
  * with an absolute floor so that values near zero are compared sensibly.
  */
 fun assertMatchesReference(expected: Double, actual: Double, message: () -> String, tolerance: Double = 1e-9) {
-    if (abs(expected - actual) > tolerance * max(1.0, abs(expected))) {
+    if (!(abs(expected - actual) <= tolerance * max(1.0, abs(expected)))) {
         fail("${message()}: expected <$expected> (py-fsrs) but was <$actual> (FsrsKt)")
     }
 }
