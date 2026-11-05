@@ -2,9 +2,13 @@ package one.felsen.fsrskt.reference
 
 import one.felsen.fsrskt.fsrs6.FsrsCalculator
 import one.felsen.fsrskt.fsrs6.FsrsState
+import one.felsen.fsrskt.helper.DateTimeHelper.elapsedDays
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestFactory
+import kotlin.test.assertEquals
+import kotlin.time.Instant
 
 /**
  * Compares [FsrsCalculator.review] against review sequences computed by py-fsrs.
@@ -45,6 +49,23 @@ class ReviewSequenceReferenceTest {
             }
             assertMatchesReference(sequence.steps.last().after, checkNotNull(actual)) {
                 "${file.kotlin}(${sequence.id}, ${sequence.params}, end of ${sequence.steps.size} steps)"
+            }
+        }
+    }
+
+    /**
+     * Compares the whole days between all consecutive reviews with the values computed by py-fsrs.
+     */
+    @Test
+    fun elapsedDaysBetweenConsecutiveReviews() {
+        file.sequences.forEach { sequence ->
+            sequence.steps.zipWithNext().forEachIndexed { index, (previous, current) ->
+                assertEquals(
+                    current.elapsedDays.toDouble(),
+                    Instant.parse(previous.reviewAt).elapsedDays(Instant.parse(current.reviewAt)),
+                    "${sequence.id}, step ${index + 2}/${sequence.steps.size}, " +
+                        "${previous.reviewAt} to ${current.reviewAt}",
+                )
             }
         }
     }
