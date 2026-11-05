@@ -16,7 +16,7 @@ import kotlin.time.Instant
  */
 class ReviewSequenceReferenceTest {
 
-    private val file = ReferenceFixtures.load<ReviewSequenceFile>("review-sequences.json")
+    private val file = ReferenceFixtures.reviewSequenceFile
 
     /**
      * Starts every step from the py-fsrs state, so that a failure points to the step that causes a deviation.
@@ -29,8 +29,7 @@ class ReviewSequenceReferenceTest {
                 val actual = calculator.review(
                     state = step.before?.let { FsrsState(it.difficulty, it.stability) },
                     rating = step.rating,
-                    elapsedDays = step.elapsedDays.toDouble(),
-                    sameDay = step.sameDay,
+                    elapsedDays = step.elapsedDays?.toDouble(),
                 )
                 assertMatchesReference(step.after, actual) { describe(sequence, index, step) }
             }
@@ -45,7 +44,7 @@ class ReviewSequenceReferenceTest {
         dynamicTest("${sequence.id}, ${sequence.params}") {
             val calculator = calculator(sequence)
             val actual = sequence.steps.fold(null as FsrsState?) { state, step ->
-                calculator.review(state, step.rating, step.elapsedDays.toDouble(), step.sameDay)
+                calculator.review(state, step.rating, step.elapsedDays?.toDouble())
             }
             assertMatchesReference(sequence.steps.last().after, checkNotNull(actual)) {
                 "${file.kotlin}(${sequence.id}, ${sequence.params}, end of ${sequence.steps.size} steps)"
@@ -61,7 +60,7 @@ class ReviewSequenceReferenceTest {
         file.sequences.forEach { sequence ->
             sequence.steps.zipWithNext().forEachIndexed { index, (previous, current) ->
                 assertEquals(
-                    current.elapsedDays.toDouble(),
+                    current.elapsedDays?.toDouble(),
                     Instant.parse(previous.reviewAt).elapsedDays(Instant.parse(current.reviewAt)),
                     "${sequence.id}, step ${index + 2}/${sequence.steps.size}, " +
                         "${previous.reviewAt} to ${current.reviewAt}",
@@ -75,7 +74,7 @@ class ReviewSequenceReferenceTest {
     private fun describe(sequence: ReviewSequence, index: Int, step: ReviewStep): String =
         "${file.kotlin}(${sequence.id}, ${sequence.params}, step ${index + 1}/${sequence.steps.size}, " +
             "reviewAt=${step.reviewAt}, before=${step.before}, ${step.rating}, " +
-            "elapsedDays=${step.elapsedDays}, sameDay=${step.sameDay})"
+            "elapsedDays=${step.elapsedDays})"
 
     private fun assertMatchesReference(expected: MemoryState, actual: FsrsState, message: () -> String) {
         assertMatchesReference(expected.difficulty, actual.difficulty, { "${message()}, difficulty" })

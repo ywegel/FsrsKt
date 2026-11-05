@@ -18,8 +18,7 @@ data class ReviewSequence(val id: String, val params: String, val steps: List<Re
 data class ReviewStep(
     val reviewAt: String,
     val rating: FsrsRating,
-    val elapsedDays: Int,
-    val sameDay: Boolean,
+    val elapsedDays: Int?,
     val before: MemoryState?,
     val after: MemoryState,
 )

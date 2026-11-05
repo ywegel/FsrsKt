@@ -28,8 +28,8 @@ class PortedPyFsrsTest {
         val intervals = listOf(0.0, 0.0, 1.0, 3.0, 8.0, 21.0)
 
         var state: FsrsState? = null
-        ratings.zip(intervals).forEachIndexed { index, (rating, interval) ->
-            state = calculator.review(state, rating, interval, sameDay = index > 0 && interval < 1)
+        ratings.zip(intervals).forEach { (rating, interval) ->
+            state = calculator.review(state, rating, interval)
         }
 
         assertEquals(53.62691, checkNotNull(state).stability, absoluteTolerance = 1e-4)
@@ -41,9 +41,9 @@ class PortedPyFsrsTest {
      */
     @Test
     fun repeatedCorrectReviews() {
-        var state = calculator.review(null, FsrsRating.EASY, elapsedDays = 0.0, sameDay = false)
+        var state = calculator.review(null, FsrsRating.EASY, elapsedDays = null)
         repeat(9) {
-            state = calculator.review(state, FsrsRating.EASY, elapsedDays = 0.0, sameDay = true)
+            state = calculator.review(state, FsrsRating.EASY, elapsedDays = 0.0)
         }
 
         assertEquals(1.0, state.difficulty)
@@ -54,8 +54,8 @@ class PortedPyFsrsTest {
      */
     @Test
     fun sameDayHardReviewDoesNotDecreaseStability() {
-        val first = calculator.review(null, FsrsRating.GOOD, elapsedDays = 0.0, sameDay = false)
-        val second = calculator.review(first, FsrsRating.HARD, elapsedDays = 0.0, sameDay = true)
+        val first = calculator.review(null, FsrsRating.GOOD, elapsedDays = null)
+        val second = calculator.review(first, FsrsRating.HARD, elapsedDays = 0.0)
 
         assertEquals(first.stability, second.stability)
     }
@@ -67,7 +67,7 @@ class PortedPyFsrsTest {
     fun stabilityLowerBound() {
         var state: FsrsState? = null
         repeat(1000) { index ->
-            val next = calculator.review(state, FsrsRating.AGAIN, elapsedDays = 1.0, sameDay = false)
+            val next = calculator.review(state, FsrsRating.AGAIN, elapsedDays = 1.0)
             assertTrue(next.stability >= FsrsParameters.STABILITY_MIN, "Stability after review ${index + 1} was ${next.stability}")
             state = next
         }

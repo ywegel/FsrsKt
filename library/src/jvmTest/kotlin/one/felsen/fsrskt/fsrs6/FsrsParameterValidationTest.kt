@@ -43,6 +43,16 @@ class FsrsParameterValidationTest {
     }
 
     @Test
+    fun laterChangesToTheGivenListHaveNoEffect() {
+        val parameters = defaults.toMutableList()
+        val fsrs = Fsrs(parameters)
+
+        parameters[20] = 100.0
+
+        assertEquals(defaults, fsrs.w)
+    }
+
+    @Test
     fun nanIsRejected() {
         assertFailsWith<IllegalArgumentException> { Fsrs(defaults.withValue(5, Double.NaN)) }
     }

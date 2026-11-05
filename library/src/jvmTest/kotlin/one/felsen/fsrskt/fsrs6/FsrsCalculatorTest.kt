@@ -17,29 +17,45 @@ class FsrsCalculatorTest {
     private val state = FsrsState(difficulty = 5.0, stability = 10.0)
 
     @Test
-    fun newCardIgnoresElapsedDaysAndSameDay() {
-        val actual = calculator.review(null, FsrsRating.GOOD, elapsedDays = 5.0, sameDay = true)
+    fun newCardIgnoresElapsedDays() {
+        val actual = calculator.review(null, FsrsRating.GOOD, elapsedDays = 5.0)
 
         assertEquals(fsrs.initialDifficulty(FsrsRating.GOOD), actual.difficulty)
         assertEquals(fsrs.initialStability(FsrsRating.GOOD), actual.stability)
     }
 
     @Test
-    fun sameDayUsesShortTermStabilityRegardlessOfElapsedDays() {
-        val actual = calculator.review(state, FsrsRating.GOOD, elapsedDays = 3.0, sameDay = true)
+    fun lessThanOneDayUsesShortTermStability() {
+        val actual = calculator.review(state, FsrsRating.GOOD, elapsedDays = 0.5)
 
         assertEquals(fsrs.nextStabilityShortTerm(state.stability, FsrsRating.GOOD), actual.stability)
     }
 
     @Test
-    fun otherDayUsesStabilityOnRecallWithFractionalElapsedDays() {
-        val actual = calculator.review(state, FsrsRating.GOOD, elapsedDays = 0.5, sameDay = false)
+    fun oneDayOrMoreUsesLongTermStabilityWithFractionalElapsedDays() {
+        val actual = calculator.review(state, FsrsRating.GOOD, elapsedDays = 1.5)
 
-        val retrievability = fsrs.retrievability(0.5, state.stability)
+        val retrievability = fsrs.retrievability(1.5, state.stability)
         assertEquals(
-            fsrs.stabilityOnRecall(state.difficulty, state.stability, retrievability, FsrsRating.GOOD),
+            fsrs.nextStability(state.difficulty, state.stability, retrievability, FsrsRating.GOOD),
             actual.stability,
         )
+    }
+
+    /**
+     * A card with a state but an unknown last review. The expected values were computed once with py-fsrs 6.3.2,
+     * `Scheduler(enable_fuzzing=False, learning_steps=(), relearning_steps=())` and a card in the review state
+     * without `last_review`.
+     */
+    @Test
+    fun unknownElapsedDaysMatchesPyFsrs() {
+        val good = calculator.review(state, FsrsRating.GOOD, elapsedDays = null)
+        assertEquals(4.9902283692968386, good.difficulty, absoluteTolerance = 1e-9)
+        assertEquals(333.44867491665667, good.stability, absoluteTolerance = 1e-9)
+
+        val again = calculator.review(state, FsrsRating.AGAIN, elapsedDays = null)
+        assertEquals(8.341762369296838, again.difficulty, absoluteTolerance = 1e-9)
+        assertEquals(6.136178801312566, again.stability, absoluteTolerance = 1e-9)
     }
 
     /**
@@ -59,7 +75,6 @@ class FsrsCalculatorTest {
     }
 
     private fun reviewAsInReadme(state: FsrsState?, lastReview: Instant?, rating: FsrsRating, now: Instant): FsrsState {
-        val elapsedDays = lastReview?.elapsedCalendarDays(now, timeZone = TimeZone.UTC) ?: 0.0
-        return calculator.review(state, rating, elapsedDays, sameDay = elapsedDays < 1)
+        return calculator.review(state, rating, lastReview?.elapsedCalendarDays(now, timeZone = TimeZone.UTC))
     }
 }

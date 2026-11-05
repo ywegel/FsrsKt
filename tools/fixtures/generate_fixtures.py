@@ -367,9 +367,9 @@ def review_sequence_steps(
         review_datetime += gap
 
         before = None if is_first_review else memory_state(card)
-        # Same whole days and same decision between short-term and long-term formula as in Scheduler.review_card.
+        # Same whole days as in Scheduler.review_card, None before the first review.
         elapsed_days = (
-            0 if is_first_review else (review_datetime - card.last_review).days
+            None if is_first_review else (review_datetime - card.last_review).days
         )
 
         card, _ = scheduler.review_card(card, rating, review_datetime)
@@ -379,7 +379,6 @@ def review_sequence_steps(
                 "reviewAt": review_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "rating": rating_name(rating),
                 "elapsedDays": elapsed_days,
-                "sameDay": not is_first_review and elapsed_days < 1,
                 "before": before,
                 "after": memory_state(card),
             }
