@@ -14,9 +14,11 @@ object ReferenceFixtures {
 
     private const val RESOURCE_DIR = "/py-fsrs-6.3.2"
 
+    val parameterSetsFile: ParameterSetsFile by lazy { load<ParameterSetsFile>("parameter-sets.json") }
+
     /** Parameter sets by name, e.g. "default" or "random-03". */
     val parameterSets: Map<String, List<Double>> by lazy {
-        load<ParameterSetsFile>("parameter-sets.json").parameterSets.associate { it.name to it.w }
+        parameterSetsFile.parameterSets.associate { it.name to it.w }
     }
 
     fun fsrs(params: String): Fsrs =
@@ -30,7 +32,13 @@ object ReferenceFixtures {
 }
 
 @Serializable
-data class ParameterSetsFile(val pyFsrsVersion: String, val seed: Long, val parameterSets: List<ParameterSet>)
+data class ParameterSetsFile(
+    val pyFsrsVersion: String,
+    val seed: Long,
+    val lowerBounds: List<Double>,
+    val upperBounds: List<Double>,
+    val parameterSets: List<ParameterSet>,
+)
 
 @Serializable
 data class ParameterSet(val name: String, val w: List<Double>)

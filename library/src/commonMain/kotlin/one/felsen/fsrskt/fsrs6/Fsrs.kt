@@ -17,6 +17,24 @@ class Fsrs(val w: List<Double> = FsrsParameters.defaultParameters) {
          * See: https://github.com/open-spaced-repetition/awesome-fsrs/wiki/The-Algorithm#default-parameters
          */
         require(w.size == 21) { "Parameters must contain exactly 21 values." }
+
+        /**
+         * Ensures that every parameter lies within its bounds and reports all parameters that do not.
+         */
+        val errorMessages = w.indices.mapNotNull { index ->
+            val parameter = w[index]
+            val lowerBound = FsrsParameters.lowerBoundsParameters[index]
+            val upperBound = FsrsParameters.upperBoundsParameters[index]
+
+            if (lowerBound <= parameter && parameter <= upperBound) {
+                null
+            } else {
+                "parameters[$index] = $parameter is out of bounds: ($lowerBound, $upperBound)"
+            }
+        }
+        require(errorMessages.isEmpty()) {
+            "One or more parameters are out of bounds:\n" + errorMessages.joinToString("\n")
+        }
     }
 
     /**

@@ -447,7 +447,12 @@ def main() -> None:
 
     write_json(
         OUTPUT_DIR / "parameter-sets.json",
-        header={"pyFsrsVersion": PY_FSRS_VERSION, "seed": SEED},
+        header={
+            "pyFsrsVersion": PY_FSRS_VERSION,
+            "seed": SEED,
+            "lowerBounds": list(LOWER_BOUNDS_PARAMETERS),
+            "upperBounds": list(UPPER_BOUNDS_PARAMETERS),
+        },
         list_key="parameterSets",
         items=[{"name": name, "w": list(w)} for name, w in parameter_sets.items()],
     )
