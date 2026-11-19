@@ -1,5 +1,8 @@
 package one.felsen.fsrskt.fsrs6
 
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.round
 import kotlin.random.Random
 
 /**
@@ -12,6 +15,17 @@ object FsrsFuzz {
      * Intervals below this are not fuzzed. (in days)
      */
     const val MIN_FUZZED_INTERVAL = 2.5
+
+    /**
+     * py-fsrs `FUZZ_RANGES`: from [start] to [end] days, the range grows by [factor] per day.
+     */
+    private class FuzzRange(val start: Double, val end: Double, val factor: Double)
+
+    private val fuzzRanges = listOf(
+        FuzzRange(start = 2.5, end = 7.0, factor = 0.15),
+        FuzzRange(start = 7.0, end = 20.0, factor = 0.1),
+        FuzzRange(start = 20.0, end = Double.POSITIVE_INFINITY, factor = 0.05),
+    )
 
     /**
      * Calculates the range of the fuzzed interval, like the inner function `_get_fuzz_range` of py-fsrs.
@@ -29,7 +43,24 @@ object FsrsFuzz {
      * is below 2, both ends are [maximumInterval].
      * @throws IllegalArgumentException If [maximumInterval] is less than 1.
      */
-    fun fuzzRange(intervalDays: Int, maximumInterval: Int): IntRange = TODO()
+    fun fuzzRange(intervalDays: Int, maximumInterval: Int): IntRange {
+        requireMaximumInterval(maximumInterval)
+
+        var delta = 1.0
+        for (range in fuzzRanges) {
+            delta += range.factor * max(min(intervalDays.toDouble(), range.end) - range.start, 0.0)
+        }
+
+        // kotlin.math.round rounds halves to even, like Python's round().
+        var first = round(intervalDays - delta).toInt()
+        var last = round(intervalDays + delta).toInt()
+
+        first = max(2, first)
+        last = min(last, maximumInterval)
+        first = min(first, last)
+
+        return first..last
+    }
 
     /**
      * Fuzzes [intervalDays] with the given random value [u], deterministically.
@@ -43,7 +74,16 @@ object FsrsFuzz {
      * @return The fuzzed interval in whole days. [intervalDays] itself, if it is below [MIN_FUZZED_INTERVAL].
      * @throws IllegalArgumentException If [maximumInterval] is less than 1, or [u] is not in [0, 1).
      */
-    fun fuzzedInterval(intervalDays: Int, maximumInterval: Int, u: Double): Int = TODO()
+    fun fuzzedInterval(intervalDays: Int, maximumInterval: Int, u: Double): Int {
+        requireMaximumInterval(maximumInterval)
+        require(u >= 0.0 && u < 1.0) { "u must be in [0, 1), but was $u." }
+
+        if (intervalDays < MIN_FUZZED_INTERVAL) return intervalDays
+
+        val range = fuzzRange(intervalDays, maximumInterval)
+        val fuzzed = u * (range.last - range.first + 1) + range.first
+        return min(round(fuzzed).toInt(), maximumInterval)
+    }
 
     /**
      * Fuzzes [intervalDays] with a value drawn from [random].
@@ -57,5 +97,9 @@ object FsrsFuzz {
      * @return The fuzzed interval in whole days, see [fuzzedInterval].
      * @throws IllegalArgumentException If [maximumInterval] is less than 1.
      */
-    fun fuzzedInterval(intervalDays: Int, maximumInterval: Int, random: Random): Int = TODO()
+    fun fuzzedInterval(intervalDays: Int, maximumInterval: Int, random: Random): Int {
+        requireMaximumInterval(maximumInterval)
+        if (intervalDays < MIN_FUZZED_INTERVAL) return intervalDays
+        return fuzzedInterval(intervalDays, maximumInterval, random.nextDouble())
+    }
 }

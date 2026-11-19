@@ -35,7 +35,8 @@ class FsrsIntervalTest {
     @Test
     fun halfDaysRoundToEven() {
         // Unrounded interval to rounded interval, as Python's round() does it.
-        val expected = mapOf(0.5 to 1, 1.5 to 2, 2.5 to 2, 3.5 to 4, 4.5 to 4, 10.5 to 10, 11.5 to 12)
+        // 0.5 is missing, as no double stability gives exactly 0.5 with the default parameters.
+        val expected = mapOf(1.5 to 2, 2.5 to 2, 3.5 to 4, 4.5 to 4, 10.5 to 10, 11.5 to 12)
         expected.forEach { (unrounded, rounded) ->
             val stability = assertNotNull(stabilityWithInterval(unrounded), "no stability with interval $unrounded")
             assertEquals(rounded, fsrs.nextInterval(stability, 0.9, 36500), "interval $unrounded")

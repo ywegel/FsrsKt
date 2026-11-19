@@ -1,5 +1,7 @@
 package one.felsen.fsrskt.fsrs6
 
+import kotlin.time.Instant
+
 /**
  * FsrsCalculator is responsible for calculating the next state of a flashcard based on the FSRS algorithm.
  *
@@ -52,5 +54,14 @@ class FsrsCalculator(val fsrs: Fsrs = Fsrs()) {
     fun replay(
         reviews: Iterable<FsrsReviewLog>,
         dayCounter: FsrsDayCounter = FsrsDayCounter.WholeDays,
-    ): FsrsState? = TODO()
+    ): FsrsState? {
+        var state: FsrsState? = null
+        var lastReview: Instant? = null
+        for (review in reviews.sortedBy { it.reviewAt }) {
+            val elapsedDays = lastReview?.let { dayCounter.elapsedDays(it, review.reviewAt).toDouble() }
+            state = review(state, review.rating, elapsedDays)
+            lastReview = review.reviewAt
+        }
+        return state
+    }
 }

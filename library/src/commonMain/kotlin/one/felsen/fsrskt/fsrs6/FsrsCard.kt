@@ -35,5 +35,9 @@ data class FsrsCard(
      * The memory state of the card, or `null` if [stability] or [difficulty] is unknown.
      */
     val memoryState: FsrsState?
-        get() = TODO()
+        get() {
+            val stability = stability ?: return null
+            val difficulty = difficulty ?: return null
+            return FsrsState(difficulty, stability)
+        }
 }

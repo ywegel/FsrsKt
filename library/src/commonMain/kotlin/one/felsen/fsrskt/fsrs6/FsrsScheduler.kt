@@ -1,7 +1,10 @@
 package one.felsen.fsrskt.fsrs6
 
+import kotlin.math.max
 import kotlin.random.Random
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.nanoseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 
@@ -59,7 +62,10 @@ class FsrsScheduler(
     val calculator: FsrsCalculator = FsrsCalculator(fsrs)
 
     init {
-        // TODO validation
+        requireDesiredRetention(desiredRetention)
+        requireMaximumInterval(maximumInterval)
+        requireSteps("learningSteps", this.learningSteps)
+        requireSteps("relearningSteps", this.relearningSteps)
     }
 
     /**
@@ -86,7 +92,96 @@ class FsrsScheduler(
         rating: FsrsRating,
         reviewAt: Instant,
         reviewDuration: Duration? = null,
-    ): FsrsReviewResult = TODO()
+    ): FsrsReviewResult {
+        val elapsedDays = card.lastReview?.let { dayCounter.elapsedDays(it, reviewAt).toDouble() }
+
+        val memoryState = when (card.state) {
+            // A new card gets its initial state, also if only one of stability and difficulty is unknown.
+            FsrsCardState.LEARNING -> calculator.review(card.memoryState, rating, elapsedDays)
+            FsrsCardState.REVIEW, FsrsCardState.RELEARNING -> {
+                val state = requireNotNull(card.memoryState) {
+                    "A card in ${card.state} needs stability and difficulty, but was $card."
+                }
+                calculator.review(state, rating, elapsedDays)
+            }
+        }
+
+        val scheduled = when (card.state) {
+            FsrsCardState.LEARNING -> scheduleSteps(card.step ?: 0, learningSteps, FsrsCardState.LEARNING, rating, memoryState)
+            FsrsCardState.REVIEW -> scheduleReview(card.step, rating, memoryState)
+            FsrsCardState.RELEARNING -> {
+                val step = requireNotNull(card.step) { "A card in RELEARNING needs a step, but was $card." }
+                scheduleSteps(step, relearningSteps, FsrsCardState.RELEARNING, rating, memoryState)
+            }
+        }
+
+        val interval = if (enableFuzzing && scheduled.state == FsrsCardState.REVIEW) {
+            FsrsFuzz.fuzzedInterval(scheduled.interval.inWholeDays.toInt(), maximumInterval, random).days
+        } else {
+            scheduled.interval
+        }
+
+        val reviewed = FsrsCard(
+            state = scheduled.state,
+            step = scheduled.step,
+            stability = memoryState.stability,
+            difficulty = memoryState.difficulty,
+            due = reviewAt + interval,
+            lastReview = reviewAt,
+        )
+        return FsrsReviewResult(reviewed, FsrsReviewLog(rating, reviewAt, reviewDuration))
+    }
+
+    /**
+     * The phase, step and interval after a review, before fuzz.
+     */
+    private class Scheduled(val state: FsrsCardState, val step: Int?, val interval: Duration)
+
+    private fun reviewInterval(memoryState: FsrsState) = Scheduled(FsrsCardState.REVIEW, null, nextInterval(memoryState.stability).days)
+
+    /**
+     * The learning and relearning phases, which only differ in their steps.
+     */
+    private fun scheduleSteps(
+        step: Int,
+        steps: List<Duration>,
+        state: FsrsCardState,
+        rating: FsrsRating,
+        memoryState: FsrsState,
+    ): Scheduled {
+        // The step can be beyond the steps if the card was scheduled before with more steps than this scheduler has.
+        if (steps.isEmpty() || (step >= steps.size && rating != FsrsRating.AGAIN)) {
+            return reviewInterval(memoryState)
+        }
+
+        return when (rating) {
+            FsrsRating.AGAIN -> Scheduled(state, 0, steps[0])
+            FsrsRating.HARD -> {
+                val interval = when {
+                    step == 0 && steps.size == 1 -> oneAndAHalf(steps[0])
+                    step == 0 -> mean(steps[0], steps[1])
+                    else -> steps[step]
+                }
+                Scheduled(state, step, interval)
+            }
+            FsrsRating.GOOD -> if (step + 1 == steps.size) {
+                reviewInterval(memoryState)
+            } else {
+                Scheduled(state, step + 1, steps[step + 1])
+            }
+            FsrsRating.EASY -> reviewInterval(memoryState)
+        }
+    }
+
+    /**
+     * The review phase. The step is kept as it is, as py-fsrs does.
+     */
+    private fun scheduleReview(step: Int?, rating: FsrsRating, memoryState: FsrsState): Scheduled =
+        if (rating == FsrsRating.AGAIN && relearningSteps.isNotEmpty()) {
+            Scheduled(FsrsCardState.RELEARNING, 0, relearningSteps[0])
+        } else {
+            Scheduled(FsrsCardState.REVIEW, step, nextInterval(memoryState.stability).days)
+        }
 
     /**
      * The interval of a card in review, without fuzz, like py-fsrs `Scheduler._next_interval`.
@@ -95,7 +190,7 @@ class FsrsScheduler(
      * @return The interval. (in whole days, 1 to [maximumInterval])
      * @see Fsrs.nextInterval
      */
-    fun nextInterval(stability: Double): Int = TODO()
+    fun nextInterval(stability: Double): Int = fsrs.nextInterval(stability, desiredRetention, maximumInterval)
 
     /**
      * The probability of recalling [card] at [now], like py-fsrs `Scheduler.get_card_retrievability`.
@@ -105,7 +200,11 @@ class FsrsScheduler(
      * @return The retrievability (0.0 to 1.0) after the days counted by [dayCounter] since [FsrsCard.lastReview], at
      * least 0 days. 0.0 if the card has no [FsrsCard.lastReview] or [FsrsCard.stability].
      */
-    fun retrievability(card: FsrsCard, now: Instant): Double = TODO()
+    fun retrievability(card: FsrsCard, now: Instant): Double {
+        val lastReview = card.lastReview ?: return 0.0
+        val stability = card.stability ?: return 0.0
+        return fsrs.retrievability(max(0L, dayCounter.elapsedDays(lastReview, now)).toDouble(), stability)
+    }
 
     /**
      * Recomputes [card] from its [reviews] with this scheduler, like py-fsrs `Scheduler.reschedule_card`.
@@ -120,7 +219,45 @@ class FsrsScheduler(
      * @param reviews All reviews of the card, in any order.
      * @return The recomputed card. A new card due at [FsrsCard.due] of [card], if [reviews] is empty.
      */
-    fun reschedule(card: FsrsCard, reviews: Iterable<FsrsReviewLog>): FsrsCard = TODO()
+    fun reschedule(card: FsrsCard, reviews: Iterable<FsrsReviewLog>): FsrsCard =
+        reviews.sortedBy { it.reviewAt }.fold(FsrsCard(due = card.due)) { rescheduled, review ->
+            review(rescheduled, review.rating, review.reviewAt).card
+        }
+
+    private companion object {
+
+        /** Up to this, the exact nanosecond arithmetic below cannot overflow. About 97 years. */
+        const val EXACT_NANOSECONDS_LIMIT = Long.MAX_VALUE / 3
+
+        fun requireSteps(name: String, steps: List<Duration>) {
+            steps.forEachIndexed { index, step ->
+                require(step.isFinite() && !step.isNegative()) {
+                    "$name[$index] must be finite and at least zero, but was $step."
+                }
+            }
+        }
+
+        /** [step] times 1.5, rounded to whole nanoseconds, half to even. py-fsrs rounds to microseconds. */
+        fun oneAndAHalf(step: Duration): Duration {
+            val nanoseconds = step.inWholeNanoseconds
+            if (nanoseconds > EXACT_NANOSECONDS_LIMIT) return step * 1.5
+            return halfToEven(3 * nanoseconds).nanoseconds
+        }
+
+        /** The mean of [a] and [b], rounded to whole nanoseconds, half to even. py-fsrs rounds to microseconds. */
+        fun mean(a: Duration, b: Duration): Duration {
+            val first = a.inWholeNanoseconds
+            val second = b.inWholeNanoseconds
+            if (first > EXACT_NANOSECONDS_LIMIT || second > EXACT_NANOSECONDS_LIMIT) return (a + b) / 2
+            return halfToEven(first + second).nanoseconds
+        }
+
+        /** [value] / 2 for a non-negative [value], with halves rounded to the even number. */
+        fun halfToEven(value: Long): Long {
+            val half = value / 2
+            return if (value % 2 == 1L && half % 2 == 1L) half + 1 else half
+        }
+    }
 }
 
 /**
@@ -135,5 +272,5 @@ data class FsrsReviewResult(val card: FsrsCard, val log: FsrsReviewLog) {
      * The time from the review until the card is due again.
      */
     val interval: Duration
-        get() = TODO()
+        get() = card.due - log.reviewAt
 }

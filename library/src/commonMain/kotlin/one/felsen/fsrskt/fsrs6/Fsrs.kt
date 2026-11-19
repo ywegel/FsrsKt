@@ -3,6 +3,7 @@ package one.felsen.fsrskt.fsrs6
 import kotlin.math.exp
 import kotlin.math.min
 import kotlin.math.pow
+import kotlin.math.round
 
 /**
  * FSRS6 implementation based on https://github.com/open-spaced-repetition/awesome-fsrs/wiki/The-Algorithm
@@ -107,7 +108,11 @@ class Fsrs(parameters: List<Double> = FsrsParameters.defaultParameters) {
      * @throws IllegalArgumentException If [desiredRetention] is not between 0 and 1, both exclusive. py-fsrs does not
      * check this.
      */
-    fun interval(stability: Double, desiredRetention: Double): Double = TODO()
+    fun interval(stability: Double, desiredRetention: Double): Double {
+        requireDesiredRetention(desiredRetention)
+        // Same operation order as py-fsrs, so that the result is bit-identical.
+        return (stability / factor) * (desiredRetention.pow(1.0 / decay) - 1.0)
+    }
 
     /**
      * Calculates the scheduled interval in whole days, like py-fsrs `Scheduler._next_interval`.
@@ -122,7 +127,12 @@ class Fsrs(parameters: List<Double> = FsrsParameters.defaultParameters) {
      * @throws IllegalArgumentException If [desiredRetention] is not between 0 and 1, both exclusive, or
      * [maximumInterval] is less than 1. py-fsrs does not check either.
      */
-    fun nextInterval(stability: Double, desiredRetention: Double, maximumInterval: Int): Int = TODO()
+    fun nextInterval(stability: Double, desiredRetention: Double, maximumInterval: Int): Int {
+        requireMaximumInterval(maximumInterval)
+        // kotlin.math.round rounds halves to even, like Python's round(). roundToInt() would round them up.
+        val rounded = round(interval(stability, desiredRetention))
+        return rounded.coerceIn(1.0, maximumInterval.toDouble()).toInt()
+    }
 
     /**
      * Calculates the next difficulty based on the current difficulty and rating.

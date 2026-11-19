@@ -1,6 +1,8 @@
 package one.felsen.fsrskt.fsrs6
 
 import kotlinx.datetime.TimeZone
+import one.felsen.fsrskt.helper.DateTimeHelper.toDayNumber
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
 
 /**
@@ -27,7 +29,11 @@ fun interface FsrsDayCounter {
          * Unlike [one.felsen.fsrskt.helper.DateTimeHelper.elapsedDays], negative durations are also rounded down, as in
          * Python (-1 hour counts as -1 day).
          */
-        val WholeDays: FsrsDayCounter = FsrsDayCounter { _, _ -> TODO() }
+        val WholeDays: FsrsDayCounter = FsrsDayCounter { from, to ->
+            val elapsed = to - from
+            val wholeDays = elapsed.inWholeDays // rounded towards zero
+            if (elapsed.isNegative() && elapsed != wholeDays.days) wholeDays - 1 else wholeDays
+        }
 
         /**
          * Day boundaries crossed, with the day starting at [dayCutoffHour] in [timeZone], as in
@@ -42,6 +48,11 @@ fun interface FsrsDayCounter {
         fun calendarDays(
             dayCutoffHour: Int = 4,
             timeZone: TimeZone = TimeZone.currentSystemDefault(),
-        ): FsrsDayCounter = TODO()
+        ): FsrsDayCounter {
+            require(dayCutoffHour in 0..23) { "dayCutoffHour must be between 0 and 23, but was $dayCutoffHour." }
+            return FsrsDayCounter { from, to ->
+                to.toDayNumber(dayCutoffHour, timeZone) - from.toDayNumber(dayCutoffHour, timeZone)
+            }
+        }
     }
 }
