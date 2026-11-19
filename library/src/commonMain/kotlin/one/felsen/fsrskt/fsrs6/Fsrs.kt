@@ -43,9 +43,19 @@ class Fsrs(parameters: List<Double> = FsrsParameters.defaultParameters) {
     }
 
     /**
-     * The factor used in the retrievability calculation.
+     * The decay of the forgetting curve, `-w[20]`. Always negative, between -0.8 and -0.1.
+     *
+     * The sign follows py-fsrs (`Scheduler._DECAY`): the retrievability is `(1 + factor * t / S)^decay`.
      */
-    private val factor = 0.9.pow(-1.0 / w[20]) - 1.0
+    val decay: Double = -w[20]
+
+    /**
+     * The factor of the forgetting curve, `0.9^(1 / decay) - 1`. Chosen so that the retrievability is exactly 0.9
+     * when the elapsed days equal the stability. Always positive.
+     *
+     * Same as py-fsrs `Scheduler._FACTOR`.
+     */
+    val factor: Double = 0.9.pow(-1.0 / w[20]) - 1.0
 
     private fun clampStability(stability: Double): Double = maxOf(stability, FsrsParameters.STABILITY_MIN)
 
@@ -84,6 +94,35 @@ class Fsrs(parameters: List<Double> = FsrsParameters.defaultParameters) {
         val r = (1.0 + factor * (maxOf(0.0, t) / s)).pow(-w[20])
         return r
     }
+
+    /**
+     * Calculates the interval after which the retrievability drops to [desiredRetention], without rounding or bounds.
+     *
+     * `interval = stability / factor * (desiredRetention^(1 / decay) - 1)`. With a [desiredRetention] of 0.9 the
+     * interval equals the stability. Use it for own scheduling rules; [nextInterval] is what py-fsrs schedules.
+     *
+     * @param stability The stability of the item. (in days)
+     * @param desiredRetention The retrievability at the end of the interval. (exclusive 0.0 to exclusive 1.0)
+     * @return The interval. (in fractional days)
+     * @throws IllegalArgumentException If [desiredRetention] is not between 0 and 1, both exclusive. py-fsrs does not
+     * check this.
+     */
+    fun interval(stability: Double, desiredRetention: Double): Double = TODO()
+
+    /**
+     * Calculates the scheduled interval in whole days, like py-fsrs `Scheduler._next_interval`.
+     *
+     * Rounds [interval] to the nearest whole day, with halves rounded to the even day like Python's `round`
+     * (2.5 becomes 2, 3.5 becomes 4). Then bounds it to at least 1 and at most [maximumInterval].
+     *
+     * @param stability The stability of the item. (in days)
+     * @param desiredRetention The retrievability at the end of the interval. (exclusive 0.0 to exclusive 1.0)
+     * @param maximumInterval The longest allowed interval. (in days, at least 1)
+     * @return The interval. (in whole days, 1 to [maximumInterval])
+     * @throws IllegalArgumentException If [desiredRetention] is not between 0 and 1, both exclusive, or
+     * [maximumInterval] is less than 1. py-fsrs does not check either.
+     */
+    fun nextInterval(stability: Double, desiredRetention: Double, maximumInterval: Int): Int = TODO()
 
     /**
      * Calculates the next difficulty based on the current difficulty and rating.
