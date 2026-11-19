@@ -24,8 +24,9 @@ object FsrsFuzz {
      *
      * @param intervalDays The interval before fuzzing. (in whole days)
      * @param maximumInterval The longest allowed interval. (in days, at least 1)
-     * @return The range of fuzzed intervals in whole days, or just [intervalDays] if it is below
-     * [MIN_FUZZED_INTERVAL], as it is not fuzzed then.
+     * @return The range of fuzzed intervals in whole days. Computed for any [intervalDays], but only used for
+     * intervals of at least [MIN_FUZZED_INTERVAL], as shorter ones are not fuzzed. Empty never: if [maximumInterval]
+     * is below 2, both ends are [maximumInterval].
      * @throws IllegalArgumentException If [maximumInterval] is less than 1.
      */
     fun fuzzRange(intervalDays: Int, maximumInterval: Int): IntRange = TODO()

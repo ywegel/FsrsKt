@@ -3,6 +3,7 @@ package one.felsen.fsrskt.reference
 import org.junit.jupiter.api.DynamicTest
 import org.junit.jupiter.api.DynamicTest.dynamicTest
 import org.junit.jupiter.api.TestFactory
+import kotlin.test.assertEquals
 
 /**
  * Compares each formula of [one.felsen.fsrskt.fsrs6.Fsrs] against values computed by py-fsrs.
@@ -46,6 +47,24 @@ class FormulaReferenceTest {
                 val actual = ReferenceFixtures.fsrs(case.params)
                     .retrievability(case.input.elapsedDays.toDouble(), case.input.stability)
                 assertMatchesReference(case.expected, actual, { "${file.kotlin}($name)" })
+            }
+        }
+    }
+
+    @TestFactory
+    fun nextInterval(): List<DynamicTest> {
+        val file = ReferenceFixtures.load<FunctionFile<NextIntervalInput, Int>>("formulas/next-interval.json")
+
+        return file.cases.map { case ->
+            val name = "${case.params}, S=${case.input.stability}, DR=${case.input.desiredRetention}, " +
+                "max=${case.input.maximumInterval}"
+            dynamicTest(name) {
+                val actual = ReferenceFixtures.fsrs(case.params).nextInterval(
+                    case.input.stability,
+                    case.input.desiredRetention,
+                    case.input.maximumInterval,
+                )
+                assertEquals(case.expected, actual, "${file.kotlin}($name)")
             }
         }
     }

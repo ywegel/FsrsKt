@@ -23,8 +23,8 @@ object ReferenceFixtures {
         parameterSetsFile.parameterSets.associate { it.name to it.w }
     }
 
-    fun fsrs(params: String): Fsrs =
-        Fsrs(parameterSets[params] ?: error("Unknown parameter set '$params'"))
+    fun fsrs(params: String?): Fsrs =
+        Fsrs(parameterSets[checkNotNull(params) { "Case without parameter set" }] ?: error("Unknown parameter set '$params'"))
 
     inline fun <reified T> load(path: String): T = Json.decodeFromString<T>(readResource(path))
 
