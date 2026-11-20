@@ -1,5 +1,7 @@
 package one.felsen.fsrskt.fsrs6
 
+import kotlin.time.Instant
+
 /**
  * FsrsCalculator is responsible for calculating the next state of a flashcard based on the FSRS algorithm.
  *
@@ -35,5 +37,31 @@ class FsrsCalculator(val fsrs: Fsrs = Fsrs()) {
         }
 
         return FsrsState(newDifficulty, newStability)
+    }
+
+    /**
+     * Replays the reviews of a new card and returns its memory state, without learning steps or intervals.
+     *
+     * Sorts [reviews] by [FsrsReviewLog.reviewAt] (stable, so reviews at the same instant keep their order) and applies
+     * [review] to each, starting from a new card. The memory state does not depend on learning steps, so the result
+     * equals [FsrsCard.memoryState] of [FsrsScheduler.reschedule] with the same parameters and [dayCounter], whatever
+     * the steps of that scheduler are.
+     *
+     * @param reviews All reviews of the card, in any order. [FsrsReviewLog.reviewDuration] is ignored.
+     * @param dayCounter How to count the days between two reviews. Defaults to whole 24-hour periods, like py-fsrs.
+     * @return The memory state after the last review, or `null` if [reviews] is empty.
+     */
+    fun replay(
+        reviews: Iterable<FsrsReviewLog>,
+        dayCounter: FsrsDayCounter = FsrsDayCounter.WholeDays,
+    ): FsrsState? {
+        var state: FsrsState? = null
+        var lastReview: Instant? = null
+        for (review in reviews.sortedBy { it.reviewAt }) {
+            val elapsedDays = lastReview?.let { dayCounter.elapsedDays(it, review.reviewAt).toDouble() }
+            state = review(state, review.rating, elapsedDays)
+            lastReview = review.reviewAt
+        }
+        return state
     }
 }

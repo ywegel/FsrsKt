@@ -12,13 +12,14 @@ def format_json_line(item: dict) -> str:
 
 
 def format_review_sequence(sequence: dict) -> str:
-    """Formats a review sequence with each of its steps on its own line."""
-    steps = ",\n".join(f"      {format_json_line(step)}" for step in sequence["steps"])
-    return (
-        f'{{"id": {json.dumps(sequence["id"])}, "params": {json.dumps(sequence["params"])}, "steps": [\n'
-        f"{steps}\n"
-        "    ]}"
+    """Formats a review sequence with its other fields on the first line and each of its steps on its own line."""
+    fields = "".join(
+        f"{json.dumps(key)}: {json.dumps(value, allow_nan=False, separators=(', ', ': '))}, "
+        for key, value in sequence.items()
+        if key != "steps"
     )
+    steps = ",\n".join(f"      {format_json_line(step)}" for step in sequence["steps"])
+    return f'{{{fields}"steps": [\n{steps}\n    ]}}'
 
 
 def write_json(

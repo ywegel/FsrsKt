@@ -28,10 +28,46 @@ To get started with FsrsKt, you can add the library to your Kotlin Multiplatform
 
 The library is published to [Maven Central](https://central.sonatype.com/artifact/one.felsen.fsrskt/fsrskt).
 
+### With the Scheduler
+
+`FsrsScheduler` is a port of the py-fsrs `Scheduler`: it moves cards through learning steps, schedules reviews from a
+desired retention and adds fuzz. It never reads the clock, so you always pass the time of the review.
+
+```kotlin
+import one.felsen.fsrskt.fsrs6.FsrsCard
+import one.felsen.fsrskt.fsrs6.FsrsRating
+import one.felsen.fsrskt.fsrs6.FsrsScheduler
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
+
+val scheduler = FsrsScheduler(
+    desiredRetention = 0.9,
+    learningSteps = listOf(1.minutes, 10.minutes),
+    relearningSteps = listOf(10.minutes),
+    maximumInterval = 36500,
+)
+
+// A new card is due right away. Store the card next to your own content and id.
+var card = FsrsCard(due = Clock.System.now())
+
+// When the user reviews it:
+val now = Clock.System.now()
+val result = scheduler.review(card, FsrsRating.GOOD, now)
+card = result.card          // new phase, step, stability, difficulty, due and last review
+val log = result.log        // store it to recompute the card later with scheduler.reschedule(card, logs)
+
+// The probability that the user still remembers the card now.
+val retrievability = scheduler.retrievability(card, Clock.System.now())
+```
+
+By default the elapsed days between two reviews are whole 24-hour periods, like in py-fsrs. To count days in the
+learner's time zone, with the day starting at 4 AM, pass `dayCounter = FsrsDayCounter.calendarDays()`.
+For reproducible fuzz, pass a seeded `random = Random(seed)`, or turn it off with `enableFuzzing = false`.
+
 ### Basic Implementation
 
-The following is a basic implementation of the FSRS algorithm using the FsrsKt library. This example demonstrates how to
-create a simple flashcard application that uses FSRS to schedule reviews.
+The following is a basic implementation of the FSRS algorithm using only the `FsrsCalculator`, without learning steps.
+This example demonstrates how to create a simple flashcard application that uses FSRS to schedule reviews.
 
 1. Crate a data structure to hold the card information. In this case, we will create a `Flashcard` data class that
    contains the front and back of the card, as well as the FSRS state and due date. You can also add any other
@@ -118,8 +154,9 @@ create a simple flashcard application that uses FSRS to schedule reviews.
     // Update the last review date to the current time.
     card.lastReview = now
 
-    // Precompute the due date for the next review based on the new FSRS state and the current time.
-    card.dueDate = now.plus(newState.stability.days)
+    // Precompute the due date for the next review: the whole days after which the retrievability drops to 90 %.
+    // The stability alone is only the right interval for a desired retention of exactly 0.9.
+    card.dueDate = now.plus(calc.fsrs.nextInterval(newState.stability, desiredRetention = 0.9, maximumInterval = 36500).days)
     ```
 
 ## Thanks
@@ -127,3 +164,7 @@ create a simple flashcard application that uses FSRS to schedule reviews.
 This project is based on the work of Jarrett Ye and other contributors to the FSRS algorithm. You can find more
 information about the FSRS algorithm on the
 wiki: [The Algorithm](https://github.com/open-spaced-repetition/awesome-fsrs/wiki/The-Algorithm#default-parameters).
+
+The scheduler (`FsrsScheduler`, `FsrsCard`, `FsrsFuzz` and the interval functions) is a port of
+[py-fsrs](https://github.com/open-spaced-repetition/py-fsrs) 6.3.2, licensed under the MIT License, see
+[LICENSE-py-fsrs](LICENSE-py-fsrs).
