@@ -643,19 +643,16 @@ def next_interval_cases(parameter_sets: dict[str, tuple[float, ...]]) -> list[di
             inputs = list(
                 itertools.product(FIXED_STABILITIES, FIXED_DESIRED_RETENTIONS, FIXED_MAXIMUM_INTERVALS)
             )
-            half_day_retentions = FIXED_DESIRED_RETENTIONS
         else:
             inputs = [
                 (sample_stability(rng), rng.uniform(0.7, 0.99), rng.choice(FIXED_MAXIMUM_INTERVALS))
                 for _ in range(RANDOM_SAMPLES_PER_PARAMETER_SET)
             ]
-            half_day_retentions = (0.9, rng.uniform(0.7, 0.99))
-        for desired_retention in half_day_retentions:
-            stabilities = half_day_stabilities(
-                Scheduler(parameters=w, desired_retention=desired_retention, enable_fuzzing=False)
-            )
-            half_day_case_count += len(stabilities)
-            inputs += [(stability, desired_retention, 36500) for stability in stabilities]
+        # Only at 0.9: there the interval is S / factor * factor, so pow() cancels out. At other retentions,
+        # pow() of the JVM and of Python's libm can differ by one ulp and round x.5 the other way.
+        stabilities = half_day_stabilities(Scheduler(parameters=w, desired_retention=0.9, enable_fuzzing=False))
+        half_day_case_count += len(stabilities)
+        inputs += [(stability, 0.9, 36500) for stability in stabilities]
 
         for stability, desired_retention, maximum_interval in inputs:
             scheduler = Scheduler(
@@ -1055,7 +1052,7 @@ def main() -> None:
         function="nextInterval",
         description="Interval in whole days after which the retrievability drops to the desired retention. "
         "Rounded half to even like Python's round(), then bounded to [1, maximumInterval]. "
-        "Some stabilities were searched so that the unrounded interval is exactly x.5 days.",
+        "Some stabilities were searched so that the unrounded interval is exactly x.5 days at a desired retention of 0.9.",
         py_fsrs="Scheduler._next_interval",
         cases=next_interval_cases(parameter_sets),
     )
