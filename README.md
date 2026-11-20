@@ -164,3 +164,7 @@ This example demonstrates how to create a simple flashcard application that uses
 This project is based on the work of Jarrett Ye and other contributors to the FSRS algorithm. You can find more
 information about the FSRS algorithm on the
 wiki: [The Algorithm](https://github.com/open-spaced-repetition/awesome-fsrs/wiki/The-Algorithm#default-parameters).
+
+The scheduler (`FsrsScheduler`, `FsrsCard`, `FsrsFuzz` and the interval functions) is a port of
+[py-fsrs](https://github.com/open-spaced-repetition/py-fsrs) 6.3.2, licensed under the MIT License, see
+[LICENSE-py-fsrs](LICENSE-py-fsrs).
