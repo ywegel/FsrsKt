@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.DeploymentValidation
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -14,6 +15,11 @@ version = "1.0.1"
 description = "This project is a Kotlin Multiplatform library that implements the FSRS-6 (Free Spaced Repetition Scheduler) algorithm."
 
 kotlin {
+    // Dumps the public API to library/api/. CI fails if it differs: run ./gradlew updateKotlinAbi and update API.md.
+    // On Linux, the iOS targets cannot be built and are kept from the committed klib dump.
+    @OptIn(ExperimentalAbiValidation::class)
+    abiValidation()
+
     jvm {
         testRuns.named("test") {
             executionTask.configure {

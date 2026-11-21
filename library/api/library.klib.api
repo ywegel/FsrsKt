@@ -1,0 +1,218 @@
+// Klib ABI Dump
+// Targets: [iosArm64, iosSimulatorArm64, linuxX64]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <one.felsen.fsrskt:library>
+final enum class one.felsen.fsrskt.fsrs6/FsrsCardState : kotlin/Enum<one.felsen.fsrskt.fsrs6/FsrsCardState> { // one.felsen.fsrskt.fsrs6/FsrsCardState|null[0]
+    enum entry LEARNING // one.felsen.fsrskt.fsrs6/FsrsCardState.LEARNING|null[0]
+    enum entry RELEARNING // one.felsen.fsrskt.fsrs6/FsrsCardState.RELEARNING|null[0]
+    enum entry REVIEW // one.felsen.fsrskt.fsrs6/FsrsCardState.REVIEW|null[0]
+
+    final val entries // one.felsen.fsrskt.fsrs6/FsrsCardState.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<one.felsen.fsrskt.fsrs6/FsrsCardState> // one.felsen.fsrskt.fsrs6/FsrsCardState.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): one.felsen.fsrskt.fsrs6/FsrsCardState // one.felsen.fsrskt.fsrs6/FsrsCardState.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<one.felsen.fsrskt.fsrs6/FsrsCardState> // one.felsen.fsrskt.fsrs6/FsrsCardState.values|values#static(){}[0]
+}
+
+final enum class one.felsen.fsrskt.fsrs6/FsrsRating : kotlin/Enum<one.felsen.fsrskt.fsrs6/FsrsRating> { // one.felsen.fsrskt.fsrs6/FsrsRating|null[0]
+    enum entry AGAIN // one.felsen.fsrskt.fsrs6/FsrsRating.AGAIN|null[0]
+    enum entry EASY // one.felsen.fsrskt.fsrs6/FsrsRating.EASY|null[0]
+    enum entry GOOD // one.felsen.fsrskt.fsrs6/FsrsRating.GOOD|null[0]
+    enum entry HARD // one.felsen.fsrskt.fsrs6/FsrsRating.HARD|null[0]
+
+    final val entries // one.felsen.fsrskt.fsrs6/FsrsRating.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<one.felsen.fsrskt.fsrs6/FsrsRating> // one.felsen.fsrskt.fsrs6/FsrsRating.entries.<get-entries>|<get-entries>#static(){}[0]
+    final val value // one.felsen.fsrskt.fsrs6/FsrsRating.value|{}value[0]
+        final fun <get-value>(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsRating.value.<get-value>|<get-value>(){}[0]
+
+    final fun valueOf(kotlin/String): one.felsen.fsrskt.fsrs6/FsrsRating // one.felsen.fsrskt.fsrs6/FsrsRating.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<one.felsen.fsrskt.fsrs6/FsrsRating> // one.felsen.fsrskt.fsrs6/FsrsRating.values|values#static(){}[0]
+}
+
+abstract fun interface one.felsen.fsrskt.fsrs6/FsrsDayCounter { // one.felsen.fsrskt.fsrs6/FsrsDayCounter|null[0]
+    abstract fun elapsedDays(kotlin.time/Instant, kotlin.time/Instant): kotlin/Long // one.felsen.fsrskt.fsrs6/FsrsDayCounter.elapsedDays|elapsedDays(kotlin.time.Instant;kotlin.time.Instant){}[0]
+
+    final object Companion { // one.felsen.fsrskt.fsrs6/FsrsDayCounter.Companion|null[0]
+        final val WholeDays // one.felsen.fsrskt.fsrs6/FsrsDayCounter.Companion.WholeDays|{}WholeDays[0]
+            final fun <get-WholeDays>(): one.felsen.fsrskt.fsrs6/FsrsDayCounter // one.felsen.fsrskt.fsrs6/FsrsDayCounter.Companion.WholeDays.<get-WholeDays>|<get-WholeDays>(){}[0]
+
+        final fun calendarDays(kotlin/Int = ..., kotlinx.datetime/TimeZone = ...): one.felsen.fsrskt.fsrs6/FsrsDayCounter // one.felsen.fsrskt.fsrs6/FsrsDayCounter.Companion.calendarDays|calendarDays(kotlin.Int;kotlinx.datetime.TimeZone){}[0]
+    }
+}
+
+final class one.felsen.fsrskt.fsrs6/Fsrs { // one.felsen.fsrskt.fsrs6/Fsrs|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/Double> = ...) // one.felsen.fsrskt.fsrs6/Fsrs.<init>|<init>(kotlin.collections.List<kotlin.Double>){}[0]
+
+    final val decay // one.felsen.fsrskt.fsrs6/Fsrs.decay|{}decay[0]
+        final fun <get-decay>(): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.decay.<get-decay>|<get-decay>(){}[0]
+    final val factor // one.felsen.fsrskt.fsrs6/Fsrs.factor|{}factor[0]
+        final fun <get-factor>(): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.factor.<get-factor>|<get-factor>(){}[0]
+    final val w // one.felsen.fsrskt.fsrs6/Fsrs.w|{}w[0]
+        final fun <get-w>(): kotlin.collections/List<kotlin/Double> // one.felsen.fsrskt.fsrs6/Fsrs.w.<get-w>|<get-w>(){}[0]
+
+    final fun initialDifficulty(one.felsen.fsrskt.fsrs6/FsrsRating, kotlin/Boolean = ...): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.initialDifficulty|initialDifficulty(one.felsen.fsrskt.fsrs6.FsrsRating;kotlin.Boolean){}[0]
+    final fun initialStability(one.felsen.fsrskt.fsrs6/FsrsRating): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.initialStability|initialStability(one.felsen.fsrskt.fsrs6.FsrsRating){}[0]
+    final fun interval(kotlin/Double, kotlin/Double): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.interval|interval(kotlin.Double;kotlin.Double){}[0]
+    final fun nextDifficulty(kotlin/Double, one.felsen.fsrskt.fsrs6/FsrsRating): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.nextDifficulty|nextDifficulty(kotlin.Double;one.felsen.fsrskt.fsrs6.FsrsRating){}[0]
+    final fun nextInterval(kotlin/Double, kotlin/Double, kotlin/Int): kotlin/Int // one.felsen.fsrskt.fsrs6/Fsrs.nextInterval|nextInterval(kotlin.Double;kotlin.Double;kotlin.Int){}[0]
+    final fun nextStability(kotlin/Double, kotlin/Double, kotlin/Double, one.felsen.fsrskt.fsrs6/FsrsRating): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.nextStability|nextStability(kotlin.Double;kotlin.Double;kotlin.Double;one.felsen.fsrskt.fsrs6.FsrsRating){}[0]
+    final fun nextStabilityShortTerm(kotlin/Double, one.felsen.fsrskt.fsrs6/FsrsRating): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.nextStabilityShortTerm|nextStabilityShortTerm(kotlin.Double;one.felsen.fsrskt.fsrs6.FsrsRating){}[0]
+    final fun retrievability(kotlin/Double?, kotlin/Double): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.retrievability|retrievability(kotlin.Double?;kotlin.Double){}[0]
+    final fun stabilityOnLapse(kotlin/Double, kotlin/Double, kotlin/Double): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.stabilityOnLapse|stabilityOnLapse(kotlin.Double;kotlin.Double;kotlin.Double){}[0]
+    final fun stabilityOnRecall(kotlin/Double, kotlin/Double, kotlin/Double, one.felsen.fsrskt.fsrs6/FsrsRating): kotlin/Double // one.felsen.fsrskt.fsrs6/Fsrs.stabilityOnRecall|stabilityOnRecall(kotlin.Double;kotlin.Double;kotlin.Double;one.felsen.fsrskt.fsrs6.FsrsRating){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsCalculator { // one.felsen.fsrskt.fsrs6/FsrsCalculator|null[0]
+    constructor <init>(one.felsen.fsrskt.fsrs6/Fsrs = ...) // one.felsen.fsrskt.fsrs6/FsrsCalculator.<init>|<init>(one.felsen.fsrskt.fsrs6.Fsrs){}[0]
+
+    final val fsrs // one.felsen.fsrskt.fsrs6/FsrsCalculator.fsrs|{}fsrs[0]
+        final fun <get-fsrs>(): one.felsen.fsrskt.fsrs6/Fsrs // one.felsen.fsrskt.fsrs6/FsrsCalculator.fsrs.<get-fsrs>|<get-fsrs>(){}[0]
+
+    final fun replay(kotlin.collections/Iterable<one.felsen.fsrskt.fsrs6/FsrsReviewLog>, one.felsen.fsrskt.fsrs6/FsrsDayCounter = ...): one.felsen.fsrskt.fsrs6/FsrsState? // one.felsen.fsrskt.fsrs6/FsrsCalculator.replay|replay(kotlin.collections.Iterable<one.felsen.fsrskt.fsrs6.FsrsReviewLog>;one.felsen.fsrskt.fsrs6.FsrsDayCounter){}[0]
+    final fun review(one.felsen.fsrskt.fsrs6/FsrsState?, one.felsen.fsrskt.fsrs6/FsrsRating, kotlin/Double?): one.felsen.fsrskt.fsrs6/FsrsState // one.felsen.fsrskt.fsrs6/FsrsCalculator.review|review(one.felsen.fsrskt.fsrs6.FsrsState?;one.felsen.fsrskt.fsrs6.FsrsRating;kotlin.Double?){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsCard { // one.felsen.fsrskt.fsrs6/FsrsCard|null[0]
+    constructor <init>(one.felsen.fsrskt.fsrs6/FsrsCardState = ..., kotlin/Int? = ..., kotlin/Double? = ..., kotlin/Double? = ..., kotlin.time/Instant, kotlin.time/Instant? = ...) // one.felsen.fsrskt.fsrs6/FsrsCard.<init>|<init>(one.felsen.fsrskt.fsrs6.FsrsCardState;kotlin.Int?;kotlin.Double?;kotlin.Double?;kotlin.time.Instant;kotlin.time.Instant?){}[0]
+
+    final val difficulty // one.felsen.fsrskt.fsrs6/FsrsCard.difficulty|{}difficulty[0]
+        final fun <get-difficulty>(): kotlin/Double? // one.felsen.fsrskt.fsrs6/FsrsCard.difficulty.<get-difficulty>|<get-difficulty>(){}[0]
+    final val due // one.felsen.fsrskt.fsrs6/FsrsCard.due|{}due[0]
+        final fun <get-due>(): kotlin.time/Instant // one.felsen.fsrskt.fsrs6/FsrsCard.due.<get-due>|<get-due>(){}[0]
+    final val lastReview // one.felsen.fsrskt.fsrs6/FsrsCard.lastReview|{}lastReview[0]
+        final fun <get-lastReview>(): kotlin.time/Instant? // one.felsen.fsrskt.fsrs6/FsrsCard.lastReview.<get-lastReview>|<get-lastReview>(){}[0]
+    final val memoryState // one.felsen.fsrskt.fsrs6/FsrsCard.memoryState|{}memoryState[0]
+        final fun <get-memoryState>(): one.felsen.fsrskt.fsrs6/FsrsState? // one.felsen.fsrskt.fsrs6/FsrsCard.memoryState.<get-memoryState>|<get-memoryState>(){}[0]
+    final val stability // one.felsen.fsrskt.fsrs6/FsrsCard.stability|{}stability[0]
+        final fun <get-stability>(): kotlin/Double? // one.felsen.fsrskt.fsrs6/FsrsCard.stability.<get-stability>|<get-stability>(){}[0]
+    final val state // one.felsen.fsrskt.fsrs6/FsrsCard.state|{}state[0]
+        final fun <get-state>(): one.felsen.fsrskt.fsrs6/FsrsCardState // one.felsen.fsrskt.fsrs6/FsrsCard.state.<get-state>|<get-state>(){}[0]
+    final val step // one.felsen.fsrskt.fsrs6/FsrsCard.step|{}step[0]
+        final fun <get-step>(): kotlin/Int? // one.felsen.fsrskt.fsrs6/FsrsCard.step.<get-step>|<get-step>(){}[0]
+
+    final fun component1(): one.felsen.fsrskt.fsrs6/FsrsCardState // one.felsen.fsrskt.fsrs6/FsrsCard.component1|component1(){}[0]
+    final fun component2(): kotlin/Int? // one.felsen.fsrskt.fsrs6/FsrsCard.component2|component2(){}[0]
+    final fun component3(): kotlin/Double? // one.felsen.fsrskt.fsrs6/FsrsCard.component3|component3(){}[0]
+    final fun component4(): kotlin/Double? // one.felsen.fsrskt.fsrs6/FsrsCard.component4|component4(){}[0]
+    final fun component5(): kotlin.time/Instant // one.felsen.fsrskt.fsrs6/FsrsCard.component5|component5(){}[0]
+    final fun component6(): kotlin.time/Instant? // one.felsen.fsrskt.fsrs6/FsrsCard.component6|component6(){}[0]
+    final fun copy(one.felsen.fsrskt.fsrs6/FsrsCardState = ..., kotlin/Int? = ..., kotlin/Double? = ..., kotlin/Double? = ..., kotlin.time/Instant = ..., kotlin.time/Instant? = ...): one.felsen.fsrskt.fsrs6/FsrsCard // one.felsen.fsrskt.fsrs6/FsrsCard.copy|copy(one.felsen.fsrskt.fsrs6.FsrsCardState;kotlin.Int?;kotlin.Double?;kotlin.Double?;kotlin.time.Instant;kotlin.time.Instant?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // one.felsen.fsrskt.fsrs6/FsrsCard.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsCard.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // one.felsen.fsrskt.fsrs6/FsrsCard.toString|toString(){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsReviewLog { // one.felsen.fsrskt.fsrs6/FsrsReviewLog|null[0]
+    constructor <init>(one.felsen.fsrskt.fsrs6/FsrsRating, kotlin.time/Instant, kotlin.time/Duration? = ...) // one.felsen.fsrskt.fsrs6/FsrsReviewLog.<init>|<init>(one.felsen.fsrskt.fsrs6.FsrsRating;kotlin.time.Instant;kotlin.time.Duration?){}[0]
+
+    final val rating // one.felsen.fsrskt.fsrs6/FsrsReviewLog.rating|{}rating[0]
+        final fun <get-rating>(): one.felsen.fsrskt.fsrs6/FsrsRating // one.felsen.fsrskt.fsrs6/FsrsReviewLog.rating.<get-rating>|<get-rating>(){}[0]
+    final val reviewAt // one.felsen.fsrskt.fsrs6/FsrsReviewLog.reviewAt|{}reviewAt[0]
+        final fun <get-reviewAt>(): kotlin.time/Instant // one.felsen.fsrskt.fsrs6/FsrsReviewLog.reviewAt.<get-reviewAt>|<get-reviewAt>(){}[0]
+    final val reviewDuration // one.felsen.fsrskt.fsrs6/FsrsReviewLog.reviewDuration|{}reviewDuration[0]
+        final fun <get-reviewDuration>(): kotlin.time/Duration? // one.felsen.fsrskt.fsrs6/FsrsReviewLog.reviewDuration.<get-reviewDuration>|<get-reviewDuration>(){}[0]
+
+    final fun component1(): one.felsen.fsrskt.fsrs6/FsrsRating // one.felsen.fsrskt.fsrs6/FsrsReviewLog.component1|component1(){}[0]
+    final fun component2(): kotlin.time/Instant // one.felsen.fsrskt.fsrs6/FsrsReviewLog.component2|component2(){}[0]
+    final fun component3(): kotlin.time/Duration? // one.felsen.fsrskt.fsrs6/FsrsReviewLog.component3|component3(){}[0]
+    final fun copy(one.felsen.fsrskt.fsrs6/FsrsRating = ..., kotlin.time/Instant = ..., kotlin.time/Duration? = ...): one.felsen.fsrskt.fsrs6/FsrsReviewLog // one.felsen.fsrskt.fsrs6/FsrsReviewLog.copy|copy(one.felsen.fsrskt.fsrs6.FsrsRating;kotlin.time.Instant;kotlin.time.Duration?){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // one.felsen.fsrskt.fsrs6/FsrsReviewLog.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsReviewLog.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // one.felsen.fsrskt.fsrs6/FsrsReviewLog.toString|toString(){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsReviewResult { // one.felsen.fsrskt.fsrs6/FsrsReviewResult|null[0]
+    constructor <init>(one.felsen.fsrskt.fsrs6/FsrsCard, one.felsen.fsrskt.fsrs6/FsrsReviewLog) // one.felsen.fsrskt.fsrs6/FsrsReviewResult.<init>|<init>(one.felsen.fsrskt.fsrs6.FsrsCard;one.felsen.fsrskt.fsrs6.FsrsReviewLog){}[0]
+
+    final val card // one.felsen.fsrskt.fsrs6/FsrsReviewResult.card|{}card[0]
+        final fun <get-card>(): one.felsen.fsrskt.fsrs6/FsrsCard // one.felsen.fsrskt.fsrs6/FsrsReviewResult.card.<get-card>|<get-card>(){}[0]
+    final val interval // one.felsen.fsrskt.fsrs6/FsrsReviewResult.interval|{}interval[0]
+        final fun <get-interval>(): kotlin.time/Duration // one.felsen.fsrskt.fsrs6/FsrsReviewResult.interval.<get-interval>|<get-interval>(){}[0]
+    final val log // one.felsen.fsrskt.fsrs6/FsrsReviewResult.log|{}log[0]
+        final fun <get-log>(): one.felsen.fsrskt.fsrs6/FsrsReviewLog // one.felsen.fsrskt.fsrs6/FsrsReviewResult.log.<get-log>|<get-log>(){}[0]
+
+    final fun component1(): one.felsen.fsrskt.fsrs6/FsrsCard // one.felsen.fsrskt.fsrs6/FsrsReviewResult.component1|component1(){}[0]
+    final fun component2(): one.felsen.fsrskt.fsrs6/FsrsReviewLog // one.felsen.fsrskt.fsrs6/FsrsReviewResult.component2|component2(){}[0]
+    final fun copy(one.felsen.fsrskt.fsrs6/FsrsCard = ..., one.felsen.fsrskt.fsrs6/FsrsReviewLog = ...): one.felsen.fsrskt.fsrs6/FsrsReviewResult // one.felsen.fsrskt.fsrs6/FsrsReviewResult.copy|copy(one.felsen.fsrskt.fsrs6.FsrsCard;one.felsen.fsrskt.fsrs6.FsrsReviewLog){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // one.felsen.fsrskt.fsrs6/FsrsReviewResult.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsReviewResult.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // one.felsen.fsrskt.fsrs6/FsrsReviewResult.toString|toString(){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsScheduler { // one.felsen.fsrskt.fsrs6/FsrsScheduler|null[0]
+    constructor <init>(kotlin.collections/List<kotlin/Double> = ..., kotlin/Double = ..., kotlin.collections/List<kotlin.time/Duration> = ..., kotlin.collections/List<kotlin.time/Duration> = ..., kotlin/Int = ..., kotlin/Boolean = ..., one.felsen.fsrskt.fsrs6/FsrsDayCounter = ..., kotlin.random/Random = ...) // one.felsen.fsrskt.fsrs6/FsrsScheduler.<init>|<init>(kotlin.collections.List<kotlin.Double>;kotlin.Double;kotlin.collections.List<kotlin.time.Duration>;kotlin.collections.List<kotlin.time.Duration>;kotlin.Int;kotlin.Boolean;one.felsen.fsrskt.fsrs6.FsrsDayCounter;kotlin.random.Random){}[0]
+
+    final val calculator // one.felsen.fsrskt.fsrs6/FsrsScheduler.calculator|{}calculator[0]
+        final fun <get-calculator>(): one.felsen.fsrskt.fsrs6/FsrsCalculator // one.felsen.fsrskt.fsrs6/FsrsScheduler.calculator.<get-calculator>|<get-calculator>(){}[0]
+    final val dayCounter // one.felsen.fsrskt.fsrs6/FsrsScheduler.dayCounter|{}dayCounter[0]
+        final fun <get-dayCounter>(): one.felsen.fsrskt.fsrs6/FsrsDayCounter // one.felsen.fsrskt.fsrs6/FsrsScheduler.dayCounter.<get-dayCounter>|<get-dayCounter>(){}[0]
+    final val desiredRetention // one.felsen.fsrskt.fsrs6/FsrsScheduler.desiredRetention|{}desiredRetention[0]
+        final fun <get-desiredRetention>(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsScheduler.desiredRetention.<get-desiredRetention>|<get-desiredRetention>(){}[0]
+    final val enableFuzzing // one.felsen.fsrskt.fsrs6/FsrsScheduler.enableFuzzing|{}enableFuzzing[0]
+        final fun <get-enableFuzzing>(): kotlin/Boolean // one.felsen.fsrskt.fsrs6/FsrsScheduler.enableFuzzing.<get-enableFuzzing>|<get-enableFuzzing>(){}[0]
+    final val fsrs // one.felsen.fsrskt.fsrs6/FsrsScheduler.fsrs|{}fsrs[0]
+        final fun <get-fsrs>(): one.felsen.fsrskt.fsrs6/Fsrs // one.felsen.fsrskt.fsrs6/FsrsScheduler.fsrs.<get-fsrs>|<get-fsrs>(){}[0]
+    final val learningSteps // one.felsen.fsrskt.fsrs6/FsrsScheduler.learningSteps|{}learningSteps[0]
+        final fun <get-learningSteps>(): kotlin.collections/List<kotlin.time/Duration> // one.felsen.fsrskt.fsrs6/FsrsScheduler.learningSteps.<get-learningSteps>|<get-learningSteps>(){}[0]
+    final val maximumInterval // one.felsen.fsrskt.fsrs6/FsrsScheduler.maximumInterval|{}maximumInterval[0]
+        final fun <get-maximumInterval>(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsScheduler.maximumInterval.<get-maximumInterval>|<get-maximumInterval>(){}[0]
+    final val parameters // one.felsen.fsrskt.fsrs6/FsrsScheduler.parameters|{}parameters[0]
+        final fun <get-parameters>(): kotlin.collections/List<kotlin/Double> // one.felsen.fsrskt.fsrs6/FsrsScheduler.parameters.<get-parameters>|<get-parameters>(){}[0]
+    final val random // one.felsen.fsrskt.fsrs6/FsrsScheduler.random|{}random[0]
+        final fun <get-random>(): kotlin.random/Random // one.felsen.fsrskt.fsrs6/FsrsScheduler.random.<get-random>|<get-random>(){}[0]
+    final val relearningSteps // one.felsen.fsrskt.fsrs6/FsrsScheduler.relearningSteps|{}relearningSteps[0]
+        final fun <get-relearningSteps>(): kotlin.collections/List<kotlin.time/Duration> // one.felsen.fsrskt.fsrs6/FsrsScheduler.relearningSteps.<get-relearningSteps>|<get-relearningSteps>(){}[0]
+
+    final fun nextInterval(kotlin/Double): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsScheduler.nextInterval|nextInterval(kotlin.Double){}[0]
+    final fun reschedule(one.felsen.fsrskt.fsrs6/FsrsCard, kotlin.collections/Iterable<one.felsen.fsrskt.fsrs6/FsrsReviewLog>): one.felsen.fsrskt.fsrs6/FsrsCard // one.felsen.fsrskt.fsrs6/FsrsScheduler.reschedule|reschedule(one.felsen.fsrskt.fsrs6.FsrsCard;kotlin.collections.Iterable<one.felsen.fsrskt.fsrs6.FsrsReviewLog>){}[0]
+    final fun retrievability(one.felsen.fsrskt.fsrs6/FsrsCard, kotlin.time/Instant): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsScheduler.retrievability|retrievability(one.felsen.fsrskt.fsrs6.FsrsCard;kotlin.time.Instant){}[0]
+    final fun review(one.felsen.fsrskt.fsrs6/FsrsCard, one.felsen.fsrskt.fsrs6/FsrsRating, kotlin.time/Instant, kotlin.time/Duration? = ...): one.felsen.fsrskt.fsrs6/FsrsReviewResult // one.felsen.fsrskt.fsrs6/FsrsScheduler.review|review(one.felsen.fsrskt.fsrs6.FsrsCard;one.felsen.fsrskt.fsrs6.FsrsRating;kotlin.time.Instant;kotlin.time.Duration?){}[0]
+}
+
+final class one.felsen.fsrskt.fsrs6/FsrsState { // one.felsen.fsrskt.fsrs6/FsrsState|null[0]
+    constructor <init>(kotlin/Double, kotlin/Double) // one.felsen.fsrskt.fsrs6/FsrsState.<init>|<init>(kotlin.Double;kotlin.Double){}[0]
+
+    final val difficulty // one.felsen.fsrskt.fsrs6/FsrsState.difficulty|{}difficulty[0]
+        final fun <get-difficulty>(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsState.difficulty.<get-difficulty>|<get-difficulty>(){}[0]
+    final val stability // one.felsen.fsrskt.fsrs6/FsrsState.stability|{}stability[0]
+        final fun <get-stability>(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsState.stability.<get-stability>|<get-stability>(){}[0]
+
+    final fun component1(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsState.component1|component1(){}[0]
+    final fun component2(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsState.component2|component2(){}[0]
+    final fun copy(kotlin/Double = ..., kotlin/Double = ...): one.felsen.fsrskt.fsrs6/FsrsState // one.felsen.fsrskt.fsrs6/FsrsState.copy|copy(kotlin.Double;kotlin.Double){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // one.felsen.fsrskt.fsrs6/FsrsState.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsState.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // one.felsen.fsrskt.fsrs6/FsrsState.toString|toString(){}[0]
+}
+
+final object one.felsen.fsrskt.fsrs6/FsrsFuzz { // one.felsen.fsrskt.fsrs6/FsrsFuzz|null[0]
+    final const val MIN_FUZZED_INTERVAL // one.felsen.fsrskt.fsrs6/FsrsFuzz.MIN_FUZZED_INTERVAL|{}MIN_FUZZED_INTERVAL[0]
+        final fun <get-MIN_FUZZED_INTERVAL>(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsFuzz.MIN_FUZZED_INTERVAL.<get-MIN_FUZZED_INTERVAL>|<get-MIN_FUZZED_INTERVAL>(){}[0]
+
+    final fun fuzzRange(kotlin/Int, kotlin/Int): kotlin.ranges/IntRange // one.felsen.fsrskt.fsrs6/FsrsFuzz.fuzzRange|fuzzRange(kotlin.Int;kotlin.Int){}[0]
+    final fun fuzzedInterval(kotlin/Int, kotlin/Int, kotlin.random/Random): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsFuzz.fuzzedInterval|fuzzedInterval(kotlin.Int;kotlin.Int;kotlin.random.Random){}[0]
+    final fun fuzzedInterval(kotlin/Int, kotlin/Int, kotlin/Double): kotlin/Int // one.felsen.fsrskt.fsrs6/FsrsFuzz.fuzzedInterval|fuzzedInterval(kotlin.Int;kotlin.Int;kotlin.Double){}[0]
+}
+
+final object one.felsen.fsrskt.fsrs6/FsrsParameters { // one.felsen.fsrskt.fsrs6/FsrsParameters|null[0]
+    final const val STABILITY_MIN // one.felsen.fsrskt.fsrs6/FsrsParameters.STABILITY_MIN|{}STABILITY_MIN[0]
+        final fun <get-STABILITY_MIN>(): kotlin/Double // one.felsen.fsrskt.fsrs6/FsrsParameters.STABILITY_MIN.<get-STABILITY_MIN>|<get-STABILITY_MIN>(){}[0]
+
+    final val defaultParameters // one.felsen.fsrskt.fsrs6/FsrsParameters.defaultParameters|{}defaultParameters[0]
+        final fun <get-defaultParameters>(): kotlin.collections/List<kotlin/Double> // one.felsen.fsrskt.fsrs6/FsrsParameters.defaultParameters.<get-defaultParameters>|<get-defaultParameters>(){}[0]
+    final val lowerBoundsParameters // one.felsen.fsrskt.fsrs6/FsrsParameters.lowerBoundsParameters|{}lowerBoundsParameters[0]
+        final fun <get-lowerBoundsParameters>(): kotlin.collections/List<kotlin/Double> // one.felsen.fsrskt.fsrs6/FsrsParameters.lowerBoundsParameters.<get-lowerBoundsParameters>|<get-lowerBoundsParameters>(){}[0]
+    final val upperBoundsParameters // one.felsen.fsrskt.fsrs6/FsrsParameters.upperBoundsParameters|{}upperBoundsParameters[0]
+        final fun <get-upperBoundsParameters>(): kotlin.collections/List<kotlin/Double> // one.felsen.fsrskt.fsrs6/FsrsParameters.upperBoundsParameters.<get-upperBoundsParameters>|<get-upperBoundsParameters>(){}[0]
+}
+
+final object one.felsen.fsrskt.helper/DateTimeHelper { // one.felsen.fsrskt.helper/DateTimeHelper|null[0]
+    final fun (kotlin.time/Instant).elapsedCalendarDays(kotlin.time/Instant = ..., kotlin/Int = ..., kotlinx.datetime/TimeZone = ...): kotlin/Double // one.felsen.fsrskt.helper/DateTimeHelper.elapsedCalendarDays|elapsedCalendarDays@kotlin.time.Instant(kotlin.time.Instant;kotlin.Int;kotlinx.datetime.TimeZone){}[0]
+    final fun (kotlin.time/Instant).elapsedDays(kotlin.time/Instant = ...): kotlin/Double // one.felsen.fsrskt.helper/DateTimeHelper.elapsedDays|elapsedDays@kotlin.time.Instant(kotlin.time.Instant){}[0]
+    final fun (kotlin.time/Instant).isSameDay(kotlin.time/Instant, kotlin/Int = ..., kotlinx.datetime/TimeZone = ...): kotlin/Boolean // one.felsen.fsrskt.helper/DateTimeHelper.isSameDay|isSameDay@kotlin.time.Instant(kotlin.time.Instant;kotlin.Int;kotlinx.datetime.TimeZone){}[0]
+    final fun (kotlin.time/Instant).toDayNumber(kotlin/Int = ..., kotlinx.datetime/TimeZone = ...): kotlin/Long // one.felsen.fsrskt.helper/DateTimeHelper.toDayNumber|toDayNumber@kotlin.time.Instant(kotlin.Int;kotlinx.datetime.TimeZone){}[0]
+}
