@@ -11,7 +11,8 @@ plugins {
 }
 
 group = "one.felsen.fsrskt"
-version = "1.0.1"
+// The publish workflow passes the release tag as -PreleaseVersion.
+version = providers.gradleProperty("releaseVersion").getOrElse("1.1.1-dev")
 description = "This project is a Kotlin Multiplatform library that implements the FSRS-6 (Free Spaced Repetition Scheduler) algorithm."
 
 kotlin {
@@ -58,17 +59,18 @@ kotlin {
         jvmTest.dependencies {
             implementation(libs.kotlinx.serialization.json)
         }
-
-        androidMain.dependencies {
-            implementation(libs.android.documentation.plugin)
-        }
     }
+}
+
+dependencies {
+    // Dokka plugin for Android SDK links in the docs; not a runtime dependency of the library.
+    dokkaPlugin(libs.android.documentation.plugin)
 }
 
 mavenPublishing {
     publishToMavenCentral(automaticRelease = true)
 
-    signAllPublications()
+    // signAllPublications()
 
     coordinates("one.felsen.fsrskt", "fsrskt", version.toString())
 
@@ -95,6 +97,16 @@ mavenPublishing {
             url.set("https://github.com/therockyt/fsrskt/")
             connection.set("scm:git:git://github.com/therockyt/fsrskt.git")
             developerConnection.set("scm:git:ssh://git@github.com/therockyt/fsrskt.git")
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ywegel/FsrsKt")
+            credentials(PasswordCredentials::class)
         }
     }
 }
