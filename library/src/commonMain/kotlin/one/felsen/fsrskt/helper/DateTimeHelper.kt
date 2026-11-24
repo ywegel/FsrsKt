@@ -1,6 +1,9 @@
 package one.felsen.fsrskt.helper
 
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atTime
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -51,6 +54,20 @@ object DateTimeHelper {
         timeZone: TimeZone = TimeZone.currentSystemDefault(),
     ): Double {
         return (other.toDayNumber(dayCutoffHour, timeZone) - this.toDayNumber(dayCutoffHour, timeZone)).toDouble()
+    }
+
+    /**
+     * Calculates the start of the day after the day of this Instant, considering a specified day cutoff hour. An Instant
+     * before the cutoff hour still belongs to the previous calendar day, so with a 4 AM cutoff both 23:00 and 03:00 of
+     * the following night lead to 04:00 of that following morning.
+     *
+     * @param dayCutoffHour The hour at which the day is considered to start (0 to 23, default is 4 AM).
+     * @param timeZone The time zone to use for the conversion (default is the system's current time zone).
+     * @return The Instant at which the next day starts.
+     */
+    fun Instant.startOfNextDay(dayCutoffHour: Int = 4, timeZone: TimeZone = TimeZone.currentSystemDefault()): Instant {
+        val nextDay = LocalDate.fromEpochDays(toDayNumber(dayCutoffHour, timeZone) + 1)
+        return nextDay.atTime(dayCutoffHour, 0).toInstant(timeZone)
     }
 
     /**

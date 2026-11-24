@@ -138,6 +138,7 @@ object DateTimeHelper {
     fun Instant.elapsedDays(other: Instant = Clock.System.now()): Double          // whole days, truncated
     fun Instant.elapsedCalendarDays(other: Instant = Clock.System.now(), dayCutoffHour: Int = 4, timeZone: TimeZone = ...): Double
     fun Instant.isSameDay(other: Instant, dayCutoffHour: Int = 4, timeZone: TimeZone = ...): Boolean
+    fun Instant.startOfNextDay(dayCutoffHour: Int = 4, timeZone: TimeZone = ...): Instant // dayCutoffHour on the day after this one
 }
 ```
 

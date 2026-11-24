@@ -170,6 +170,8 @@ public final class one/felsen/fsrskt/helper/DateTimeHelper {
 	public static synthetic fun elapsedDays$default (Lone/felsen/fsrskt/helper/DateTimeHelper;Lkotlin/time/Instant;Lkotlin/time/Instant;ILjava/lang/Object;)D
 	public final fun isSameDay (Lkotlin/time/Instant;Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;)Z
 	public static synthetic fun isSameDay$default (Lone/felsen/fsrskt/helper/DateTimeHelper;Lkotlin/time/Instant;Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;ILjava/lang/Object;)Z
+	public final fun startOfNextDay (Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;)Lkotlin/time/Instant;
+	public static synthetic fun startOfNextDay$default (Lone/felsen/fsrskt/helper/DateTimeHelper;Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;ILjava/lang/Object;)Lkotlin/time/Instant;
 	public final fun toDayNumber (Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;)J
 	public static synthetic fun toDayNumber$default (Lone/felsen/fsrskt/helper/DateTimeHelper;Lkotlin/time/Instant;ILkotlinx/datetime/TimeZone;ILjava/lang/Object;)J
 }
