@@ -4,6 +4,7 @@ import kotlinx.datetime.TimeZone
 import one.felsen.fsrskt.helper.DateTimeHelper.elapsedCalendarDays
 import one.felsen.fsrskt.helper.DateTimeHelper.elapsedDays
 import one.felsen.fsrskt.helper.DateTimeHelper.isSameDay
+import one.felsen.fsrskt.helper.DateTimeHelper.startOfNextDay
 import one.felsen.fsrskt.helper.DateTimeHelper.toDayNumber
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -107,6 +108,50 @@ class DateTimeHelperTest {
     @Test
     fun elapsedCalendarDaysOfSeveralDays() {
         assertEquals(3.0, elapsedCalendarDays("2024-01-01T12:00:00Z", "2024-01-04T11:00:00Z"))
+    }
+
+    @Test
+    fun startOfNextDayBeforeCutoffIsSameCalendarDay() {
+        assertEquals(instant("2024-06-15T04:00:00Z"), instant("2024-06-15T03:59:00Z").startOfNextDay(4, TimeZone.UTC))
+    }
+
+    @Test
+    fun startOfNextDayAtCutoffIsNextCalendarDay() {
+        assertEquals(instant("2024-06-16T04:00:00Z"), instant("2024-06-15T04:00:00Z").startOfNextDay(4, TimeZone.UTC))
+    }
+
+    @Test
+    fun startOfNextDayLateInEveningIsNextCalendarDay() {
+        assertEquals(instant("2024-06-16T04:00:00Z"), instant("2024-06-15T23:59:00Z").startOfNextDay(4, TimeZone.UTC))
+    }
+
+    @Test
+    fun startOfNextDayInBerlin() {
+        assertEquals(instant("2024-06-16T02:00:00Z"), instant("2024-06-15T12:00:00Z").startOfNextDay(4, berlin))
+    }
+
+    @Test
+    fun startOfNextDayWithOtherCutoff() {
+        assertEquals(instant("2024-06-16T00:00:00Z"), instant("2024-06-15T00:00:00Z").startOfNextDay(0, TimeZone.UTC))
+    }
+
+    @Test
+    fun startOfNextDayAtSpringClockChange() {
+        assertEquals(instant("2024-03-31T02:00:00Z"), instant("2024-03-30T12:00:00Z").startOfNextDay(4, berlin))
+    }
+
+    @Test
+    fun startOfNextDayAtAutumnClockChange() {
+        assertEquals(instant("2024-10-27T03:00:00Z"), instant("2024-10-26T12:00:00Z").startOfNextDay(4, berlin))
+    }
+
+    @Test
+    fun startOfNextDayRejectsCutoffOutsideOfDay() {
+        listOf(-1, 24).forEach { cutoff ->
+            assertFailsWith<IllegalArgumentException>("cutoff $cutoff") {
+                instant("2024-06-15T12:00:00Z").startOfNextDay(cutoff, TimeZone.UTC)
+            }
+        }
     }
 
     private fun elapsedCalendarDays(from: String, to: String): Double =
