@@ -96,6 +96,7 @@ $dokka.location:one.felsen.fsrskt.helper/DateTimeHelper///PointingToDeclaration/
 $dokka.location:one.felsen.fsrskt.helper/DateTimeHelper/elapsedCalendarDays/kotlin.time.Instant#kotlin.time.Instant#kotlin.Int#kotlinx.datetime.TimeZone/PointingToDeclaration/fsrs-kt/one.felsen.fsrskt.helper/-date-time-helper/elapsed-calendar-days.html
 $dokka.location:one.felsen.fsrskt.helper/DateTimeHelper/elapsedDays/kotlin.time.Instant#kotlin.time.Instant/PointingToDeclaration/fsrs-kt/one.felsen.fsrskt.helper/-date-time-helper/elapsed-days.html
 $dokka.location:one.felsen.fsrskt.helper/DateTimeHelper/isSameDay/kotlin.time.Instant#kotlin.time.Instant#kotlin.Int#kotlinx.datetime.TimeZone/PointingToDeclaration/fsrs-kt/one.felsen.fsrskt.helper/-date-time-helper/is-same-day.html
+$dokka.location:one.felsen.fsrskt.helper/DateTimeHelper/startOfNextDay/kotlin.time.Instant#kotlin.Int#kotlinx.datetime.TimeZone/PointingToDeclaration/fsrs-kt/one.felsen.fsrskt.helper/-date-time-helper/start-of-next-day.html
 $dokka.location:one.felsen.fsrskt.helper/DateTimeHelper/toDayNumber/kotlin.time.Instant#kotlin.Int#kotlinx.datetime.TimeZone/PointingToDeclaration/fsrs-kt/one.felsen.fsrskt.helper/-date-time-helper/to-day-number.html
 one.felsen.fsrskt.fsrs6
 one.felsen.fsrskt.helper
